@@ -2,7 +2,7 @@
 The `eark` module is a compilation of utilities for analyzing reactor kinetics, with
 a bias towards astronautical engineering applications.
 
-[![Build Status](https://travis-ci.com/JWKennington/eark.svg?branch=master)](https://travis-ci.com/JWKennington/eark) 
+[![Build Status](https://travis-ci.com/vigneshwar-manickam/eark.svg?branch=master)](https://travis-ci.com/vigneshwar-manickam/eark) 
 
 ## Installation
 The `eark` package is pip-installable and is tested against python 3.6 and 3.7.
