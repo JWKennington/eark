@@ -11,4 +11,4 @@ def run_tests():
     Returns:
         None
     """
-    return pytest.main(['-x', TEST_ROOT])
+    return pytest.main(['-x', TEST_ROOT.as_posix()])
