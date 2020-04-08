@@ -3,19 +3,19 @@
 
 import setuptools
 
-import gravtools
+import eark
 
 with open("README.md", "r") as fh:
     long_description = fh.read()
 
-setuptools.setup(name='gravtools',
-                 version=gravtools.__version__,
-                 description='Gravitational tools for Python',
+setuptools.setup(name='eark',
+                 version=eark.__version__,
+                 description='Emulating Astronautical Reactor Kinetics',
                  long_description=long_description,
                  long_description_content_type="text/markdown",
-                 url=gravtools.__github_url__,
-                 author='James W. Kennington',
-                 author_email='jameswkennington@gmail.com',
+                 url=eark.__github_url__,
+                 author='Vigneshwar Manickam',
+                 author_email='vigneshwar.manickam@gatech.edu',
                  license='MIT',
                  packages=setuptools.find_packages(),
                  zip_safe=False)

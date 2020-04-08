@@ -13,4 +13,4 @@ twine upload dist/*
 # Cleanup
 rm -rf build
 rm -rf dist
-rm -rf gravtools.egg_info
+rm -rf eark.egg_info
