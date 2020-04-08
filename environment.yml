@@ -1,15 +1,10 @@
-name: gravtools-env
+name: eark-env
 
 channels:
   - conda-forge
   - defaults
 
 dependencies:
-  - astropy
-  - bokeh
-  - codecov
-  - python=3.7
+  - numpy
   - pytest
-  - pycbc
-  - jupyter
-  - jupyter_contrib_nbextensions
+  - scipy
