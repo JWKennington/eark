@@ -11,7 +11,6 @@ The `eark` package is pip-installable and is tested against python 3.6 and 3.7.
 pip install eark
 ```  
 
-
 ## Using `eark`
 
 ### Inhour Equation Solver
