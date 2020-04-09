@@ -96,8 +96,48 @@ def _state_deriv(state: np.ndarray, t: float, beta_vector: np.ndarray, precursor
     return np.concatenate((np.array([dndt]), dcdt), axis=0)
 
 
+class Solution:
+    __slots__ = ('_array', '_t')
+
+    def __init__(self, array: np.ndarray, t: np.ndarray):
+        self._array = array
+        self._t = t
+
+    @property
+    def array(self):
+        return self._array
+
+    @property
+    def t(self):
+        return self._t
+
+    @property
+    def neutron_population(self):
+        return self._array[:, 0]
+
+    @property
+    def num_densities(self):
+        return self.precursor_densities.shape[1]
+
+    @property
+    def precursor_densities(self):
+        return self._array[:, 1:]
+
+    def precursor_density(self, i: int):
+        """Get a timeseries of precursor densitity of the ith kind
+
+        Args:
+            i:
+                index of the vector component. These are 1-indexed, to match the mathematical notation.
+
+        Returns:
+            ndarray
+        """
+        return self.precursor_densities[:, i - 1]
+
+
 def solve(n_initial: float, precursor_density_initial: np.ndarray, beta_vector: np.ndarray, precursor_constants: np.ndarray, rho: float, total_beta: float, period: float,
-          t_max: float, t_start: float = 0, num_iters: int = 100):
+          t_max: float, t_start: float = 0, num_iters: int = 100) -> Solution:
     """Solve the Inhour equations numerically given some initial reactor state
 
     Args:
@@ -128,4 +168,5 @@ def solve(n_initial: float, precursor_density_initial: np.ndarray, beta_vector: 
     initial_state = np.concatenate((np.array([n_initial]), precursor_density_initial), axis=0)
     t = np.linspace(t_start, t_max, num_iters)
     deriv_func = functools.partial(_state_deriv, beta_vector=beta_vector, precursor_constants=precursor_constants, rho=rho, total_beta=total_beta, period=period)
-    return odeint(deriv_func, initial_state, t)
+    res = odeint(deriv_func, initial_state, t)
+    return Solution(array=res, t=np.arange(t_start, t_max, (t_max - t_start) / num_iters))

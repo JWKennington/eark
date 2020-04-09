@@ -68,5 +68,5 @@ class TestInhour:
         desired = np.array([[4.000e+03, 5.000e+03, 6.000e+03, 5.600e+03, 4.700e+03, 7.800e+03, 6.578e+03],
                             [1.881e+15, 1.856e+16, 1.231e+17, 1.100e+17, 2.210e+17, 6.338e+16, 2.241e+16],
                             [2.397e+27, 2.364e+28, 1.568e+29, 1.402e+29, 2.815e+29, 8.076e+28, 2.856e+28]])
-        for a, d in zip(soln.ravel().tolist(), desired.ravel().tolist()):
+        for a, d in zip(soln.array.ravel().tolist(), desired.ravel().tolist()):
             np.testing.assert_approx_equal(actual=a, desired=d, significant=3)
