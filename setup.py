@@ -18,4 +18,11 @@ setuptools.setup(name='eark',
                  author_email='vigneshwar.manickam@gatech.edu',
                  license='MIT',
                  packages=setuptools.find_packages(),
+                 install_requires=[
+                     'matplotlib'
+                     'numpy',
+                     'palettable',
+                     'pytest',
+                     'scipy',
+                 ],
                  zip_safe=False)
