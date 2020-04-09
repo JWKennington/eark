@@ -19,7 +19,7 @@ setuptools.setup(name='eark',
                  license='MIT',
                  packages=setuptools.find_packages(),
                  install_requires=[
-                     'matplotlib'
+                     'matplotlib',
                      'numpy',
                      'palettable',
                      'pytest',
