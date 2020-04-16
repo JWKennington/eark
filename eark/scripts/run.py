@@ -34,11 +34,12 @@ def main():
                         beta_vector=BETA_VECTOR, precursor_constants=PRECURSOR_CONSTANTS,
                         rho=RHO, total_beta=BETA, period=PERIOD, h=h, M_M=M_M,
                         C_M=C_M, W_M=W_M, M_F=M_F, C_F=C_F, T_in=T_in,
-                        T_mod0=T_mod0, T_fuel0=T_fuel0, t_max=10, num_iters=30000)
+                        T_mod0=T_mod0, T_fuel0=T_fuel0, t_max=10, num_iters=10000)
 
     plot.plot_power(soln)
     plot.plot_precursordensities(soln)
     plot.plot_T_mod(soln)
+    plot.plot_T_fuel(soln)
 
 
 if __name__ == '__main__':

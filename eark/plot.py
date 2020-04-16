@@ -95,3 +95,13 @@ def plot_T_mod(soln: solver.Solution, color: str = 'red', legend_position: str =
     plt.title("Moderator Temperature vs. Time")
     plt.legend()
     plt.show()
+
+def plot_T_fuel(soln: solver.Solution, color: str = 'red', legend_position: str = 'upper left'):
+        t = soln.t
+        T_fuel = soln.T_fuel
+        plt.plot(t, T_fuel, color=color, label='T_mod', marker='.')
+        plt.xlabel("Time [s]")
+        plt.ylabel("Fuel Temperature [K]")
+        plt.title("Fuel Temperature vs. Time")
+        plt.legend()
+        plt.show()
