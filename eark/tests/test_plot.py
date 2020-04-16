@@ -6,7 +6,7 @@ import tempfile
 import numpy as np
 import pytest
 
-from eark import inhour, plot
+from eark import solver, plot
 
 
 class TestInhour:
@@ -39,7 +39,7 @@ class TestInhour:
         return 0.5 * beta
 
     def test_plot_solution(self, n_initial, precursor_density, precursor_constants, beta_vector, beta, rho, period):
-        soln = inhour.solve(n_initial=n_initial,
+        soln = solver.solve(n_initial=n_initial,
                             precursor_density_initial=precursor_density,
                             beta_vector=beta_vector,
                             precursor_constants=precursor_constants,
