@@ -6,7 +6,7 @@ import tempfile
 import numpy as np
 import pytest
 
-from eark import inhour, plot
+from eark import solver, plot
 
 
 class TestInhour:
@@ -39,15 +39,34 @@ class TestInhour:
         return 0.5 * beta
 
     def test_plot_solution(self, n_initial, precursor_density, precursor_constants, beta_vector, beta, rho, period):
-        soln = inhour.solve(n_initial=n_initial,
+        C_F = 200  # specific Heat Capacity of Fuel [J/kg/K]
+        C_M = 4000  # specific Heat Capacity of Moderator             [J/kg/K]
+        h = 4e6  # heat transfer coefficient of fuel and moderator [J/K/sec]
+        M_F = 40000  # mass of Fuel                                    [kg]
+        M_M = 7000  # mass of Moderator                               [kg]
+        N_INITIAL = 1500e6  # initial Reactor Power [W]
+        W_M = 8000
+        T_in = 550  # inlet coolant temperature [K]
+        T_mod0 = T_in + (N_INITIAL / (2 * W_M * C_M))  # initial moderator temperature [K]
+        T_fuel0 = T_in + (1 / (2 * W_M * C_M) + (1 / h)) * N_INITIAL  # initial fuel temperature  [K]
+        soln = solver.solve(n_initial=n_initial,
                             precursor_density_initial=precursor_density,
                             beta_vector=beta_vector,
                             precursor_constants=precursor_constants,
                             rho=rho,
                             total_beta=beta,
                             period=period,
-                            t_max=10,
-                            num_iters=30000)
+                            t_max=1,
+                            num_iters=3,
+                            h=h,
+                            M_M=M_M,
+                            C_M=C_M,
+                            W_M=W_M,
+                            M_F=M_F,
+                            C_F=C_F,
+                            T_in=T_in,
+                            T_mod0=T_mod0,
+                            T_fuel0=T_fuel0)
         with tempfile.TemporaryDirectory() as tmpdir:
             # find the temporary path
             plot_file = pathlib.Path(tmpdir) / 'plot_file.png'

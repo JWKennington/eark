@@ -6,12 +6,12 @@ import types
 import matplotlib.pyplot as plt
 from palettable.scientific.sequential import Batlow_6 as cmap
 
-from eark import inhour
+from eark import solver
 
 DENSITY_COLORS = cmap.mpl_colors
 
 
-def plot_solution(soln: inhour.Solution, neutron_color: str = 'red', show_densities: bool = True, output_file: str = None, legend_position: str = 'upper left',
+def plot_solution(soln: solver.Solution, neutron_color: str = 'red', show_densities: bool = True, output_file: str = None, legend_position: str = 'upper left',
                   y_transform: types.FunctionType = None):
     """Plot a solution
 
@@ -61,3 +61,37 @@ def plot_solution(soln: inhour.Solution, neutron_color: str = 'red', show_densit
         plt.show()
     else:
         plt.savefig(output_file)
+
+
+def plot_power(soln: solver.Solution, neutron_color: str = 'red', legend_position: str = 'upper left'):
+    t = soln.t
+    power = soln.neutron_population / soln.neutron_population[0]
+    plt.plot(t, power, color=neutron_color, label='n', marker='.')
+    plt.xlabel("Time [s]")
+    plt.ylabel("Normalized Power")
+    plt.title("Normalized Power vs. Time")
+    plt.legend()
+    plt.show()
+
+
+def plot_precursordensities(soln: solver.Solution, color: str = 'red', legend_position: str = 'upper left'):
+    t = soln.t
+    for i in range(1, soln.num_densities + 1):
+        plt.plot(t, soln.precursor_density(i), color=DENSITY_COLORS[i - 1], marker='.',
+                 label='$\zeta$_{:d}'.format(i))
+    plt.xlabel('Time $[s]$')
+    plt.ylabel("Concentration of Neutron Precursors, $\zeta_i [\#/dr^3]$")
+    plt.title("Concentration of Neutron Precursors, $\zeta_i [\#/dr^3]$")
+    plt.legend()
+    plt.show()
+
+
+def plot_T_mod(soln: solver.Solution, color: str = 'red', legend_position: str = 'upper left'):
+    t = soln.t
+    T_mod = soln.T_mod
+    plt.plot(t, T_mod, color=color, label='T_mod', marker='.')
+    plt.xlabel("Time [s]")
+    plt.ylabel("Moderator Temperature [K]")
+    plt.title("Moderator Temperature vs. Time")
+    plt.legend()
+    plt.show()
