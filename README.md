@@ -17,7 +17,7 @@ pip install eark
 The `eark.inhour` module contains utilities for solving the Inhour equations, for example:
 ```python
 >>> import numpy as np
->>> from eark import inhour
+>>> from eark import solver
 
 # Setup initial state
 >>> beta = 0.0075
@@ -29,7 +29,7 @@ The `eark.inhour` module contains utilities for solving the Inhour equations, fo
 >>> rho =  0.5 * beta
 
 # Solve 
->>> inhour.solve(n_initial=n_initial,
+>>> solver.solve(n_initial=n_initial,
                  precursor_density_initial=precursor_density,
                  beta_vector=beta_vector,
                  precursor_constants=precursor_constants,

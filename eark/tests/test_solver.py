@@ -4,7 +4,7 @@
 import numpy as np
 import pytest
 
-from eark import inhour
+from eark import solver
 
 
 class TestInhour:
@@ -37,7 +37,7 @@ class TestInhour:
         return 0.5 * beta
 
     def test_total_neutron_deriv(self, rho, beta, period, n_initial, precursor_constants, precursor_density):
-        res = inhour.total_neutron_deriv(rho=rho,
+        res = solver.total_neutron_deriv(rho=rho,
                                          beta=beta,
                                          period=period,
                                          n=n_initial,
@@ -46,7 +46,7 @@ class TestInhour:
         np.testing.assert_almost_equal(actual=res, desired=-219026.44999999998, decimal=5)
 
     def test_delay_neutron_deriv(self, period, n_initial, beta_vector, precursor_constants, precursor_density):
-        res = inhour.delay_neutron_deriv(beta_vector=beta_vector,
+        res = solver.delay_neutron_deriv(beta_vector=beta_vector,
                                          period=period,
                                          n=n_initial,
                                          precursor_constants=precursor_constants,
@@ -55,7 +55,7 @@ class TestInhour:
         np.testing.assert_almost_equal(actual=res, desired=desired, decimal=5)
 
     def test_solve(self, n_initial, precursor_density, precursor_constants, beta_vector, beta, rho, period):
-        soln = inhour.solve(n_initial=n_initial,
+        soln = solver.solve(n_initial=n_initial,
                             precursor_density_initial=precursor_density,
                             beta_vector=beta_vector,
                             precursor_constants=precursor_constants,
