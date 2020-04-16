@@ -15,7 +15,7 @@ C_M = 4000  # specific Heat Capacity of Moderator             [J/kg/K]
 h = 4e6  # heat transfer coefficient of fuel and moderator [J/K/sec]
 M_F = 40000  # mass of Fuel                                    [kg]
 M_M = 7000  # mass of Moderator                               [kg]
-N_INITIAL = 1500e6  # initial Reactor Power [W]
+N_INITIAL = 1600e6  # initial Reactor Power [W]
 PERIOD = 0.001  # effective generation time [s]
 PRECURSOR_CONSTANTS = np.array([0.0124, 0.0305, 0.1110, 0.3011, 1.1400, 3.0100])
 PRECURSOR_DENSITY_INITIAL = np.array([298790322580, 68090163934, 16513513513, 13179176353, 1094736842, 84219269])
@@ -34,11 +34,12 @@ def main():
                         beta_vector=BETA_VECTOR, precursor_constants=PRECURSOR_CONSTANTS,
                         rho=RHO, total_beta=BETA, period=PERIOD, h=h, M_M=M_M,
                         C_M=C_M, W_M=W_M, M_F=M_F, C_F=C_F, T_in=T_in,
-                        T_mod0=T_mod0, T_fuel0=T_fuel0, t_max=10, num_iters=30000)
+                        T_mod0=T_mod0, T_fuel0=T_fuel0, t_max=10, num_iters=10000)
 
     plot.plot_power(soln)
     plot.plot_precursordensities(soln)
     plot.plot_T_mod(soln)
+    plot.plot_T_fuel(soln)
 
 
 if __name__ == '__main__':
