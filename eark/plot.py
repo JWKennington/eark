@@ -66,7 +66,7 @@ def plot_solution(soln: solver.Solution, neutron_color: str = 'red', show_densit
 def plot_power(soln: solver.Solution, neutron_color: str = 'red', legend_position: str = 'upper left'):
     t = soln.t
     power = soln.neutron_population / soln.neutron_population[0]
-    plt.plot(t, power, color=neutron_color, label='n', marker='.')
+    plt.plot(t, power, color=neutron_color, label='$P(t)$', marker='.')
     plt.xlabel("Time [s]")
     plt.ylabel("Normalized Power")
     plt.title("Normalized Power vs. Time")
@@ -78,10 +78,11 @@ def plot_precursordensities(soln: solver.Solution, color: str = 'red', legend_po
     t = soln.t
     for i in range(1, soln.num_densities + 1):
         plt.plot(t, soln.precursor_density(i), color=DENSITY_COLORS[i - 1], marker='.',
-                 label='$\zeta$_{:d}'.format(i))
+                 label='$c_{:d}$'.format(i))
     plt.xlabel('Time $[s]$')
-    plt.ylabel("Concentration of Neutron Precursors, $\zeta_i [\#/dr^3]$")
-    plt.title("Concentration of Neutron Precursors, $\zeta_i [\#/dr^3]$")
+    plt.ylabel("Concentration of Neutron Precursors, $c_i [\#/dr^3]$")
+    plt.ticklabel_format(style='sci', axis='y', scilimits=(13, 13), useMathText=True)
+    plt.title("Concentration of Neutron Precursors vs. Time$")
     plt.legend()
     plt.show()
 
@@ -89,7 +90,7 @@ def plot_precursordensities(soln: solver.Solution, color: str = 'red', legend_po
 def plot_T_mod(soln: solver.Solution, color: str = 'red', legend_position: str = 'upper left'):
     t = soln.t
     T_mod = soln.T_mod
-    plt.plot(t, T_mod, color=color, label='T_mod', marker='.')
+    plt.plot(t, T_mod, color=color, label='$T_{mod}$', marker='.')
     plt.xlabel("Time [s]")
     plt.ylabel("Moderator Temperature [K]")
     plt.title("Moderator Temperature vs. Time")
@@ -99,9 +100,32 @@ def plot_T_mod(soln: solver.Solution, color: str = 'red', legend_position: str =
 def plot_T_fuel(soln: solver.Solution, color: str = 'red', legend_position: str = 'upper left'):
         t = soln.t
         T_fuel = soln.T_fuel
-        plt.plot(t, T_fuel, color=color, label='T_mod', marker='.')
+        plt.plot(t, T_fuel, color=color, label='$T_{fuel}$', marker='.')
         plt.xlabel("Time [s]")
         plt.ylabel("Fuel Temperature [K]")
         plt.title("Fuel Temperature vs. Time")
         plt.legend()
         plt.show()
+
+def plot_rho_temp(soln: solver.Solution, color: str = 'red', legend_position: str = 'upper left'):
+    t = soln.t
+    rho_temp = soln.rho_temp
+    plt.plot(t, rho_temp, color=color, label='$\\rho_{temp}$', marker='.')
+    plt.xlabel("Time [s]")
+    plt.ylabel("Reactivity Temperature [$\Delta k/K$]")
+    plt.ticklabel_format(style='sci', axis='y', scilimits=(-4, -4), useMathText=True)
+    plt.title("Reactivity Temperature vs. Time")
+    plt.legend()
+    plt.show()
+
+def plot_rho_ext(soln: solver.Solution, color: str = 'red', legend_position: str = 'upper left'):
+    t = soln.t
+    rho_ext = soln.rho_ext
+    plt.plot(t, rho_ext, color=color, label='$\\rho_{ext}$', marker='.')
+    plt.xlabel("Time [s]")
+    plt.ylabel("External Reactivity [$\Delta k$]")
+    plt.ticklabel_format(style='sci', axis='y', scilimits=(-4, -4), useMathText=True)
+    plt.title("External Reactivity vs. Time")
+    plt.legend()
+    plt.show()
+
