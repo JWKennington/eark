@@ -8,7 +8,7 @@ import numpy as np
 from scipy.integrate import odeint
 
 
-def total_neutron_deriv(rho: float, beta: float, period: float, n, precursor_constants: np.ndarray,
+def total_neutron_deriv(rho_temp: float, rho_ext: float, beta: float, period: float, n, precursor_constants: np.ndarray,
                         precursor_density: np.ndarray) -> float:
     """Compute time derivative of total neutron population (i.e. reactor power), $\frac{dn}{dt}(t)$
 
@@ -39,7 +39,9 @@ def total_neutron_deriv(rho: float, beta: float, period: float, n, precursor_con
             ...                     precursor_density=np.array([5000, 6000, 5600, 4700, 7800, 6578]))
             -219026.44999999998
     """
-    return (((rho - beta) / period) * n) + np.inner(precursor_constants, precursor_density)
+
+    total_rho = rho_temp + rho_ext
+    return (((total_rho - beta) / period) * n) + np.inner(precursor_constants, precursor_density)
 
 
 def delay_neutron_deriv(beta_vector: np.ndarray, period: float, n: float, precursor_constants: np.ndarray,
@@ -116,14 +118,42 @@ def fuel_temp_deriv(n: float, M_F: float, C_F: float, h: float, T_fuel: float, T
     """
     return (n / (M_F * C_F)) - ((h / (M_F * C_F)) * (T_fuel - T_mod))
 
+def temp_reactivity_deriv(n:float, h: float, M_M: float, C_M: float, W_M: float, M_F: float, C_F: float, T_in: float,
+                     T_mod: float, T_fuel: float, a_F: float, a_M: float) -> float:
+    """Compute time derivative of reactivity, $\frac{drho}{dt}(t)$
 
-def _state_deriv(state: np.ndarray, t: float, beta_vector: np.ndarray, precursor_constants: np.ndarray, rho: float, total_beta: float,
-                 period: float, h: float, M_M: float, C_M: float, W_M: float, M_F: float, C_F: float, T_in: float) -> np.ndarray:
+        Args:
+            rho_ext:
+                float, External Reactivity (i.e. control rods)         [dK]
+            a_F:
+                float, temperature reactivity coefficient, fuel        [dK/K]
+            a_M:
+                float, temperature reactivity coefficient, moderator   [dK/K]
+        """
+    return (a_F * fuel_temp_deriv(n=n, M_F=M_F, C_F=C_F, h=h, T_fuel=T_fuel, T_mod=T_mod)) + \
+           (a_M * mod_temp_deriv(h=h, M_M= M_M, C_M=C_M, W_M=W_M, T_fuel=T_fuel, T_mod=T_mod, T_in=T_in))
+
+def ext_reactivity_deriv(t):
+    """
+    Examples:
+        Constant:
+            f(t) = k
+            df/dt = 0
+        Linear:
+            f(t) = kt
+            df/ft = k
+    """
+    return 0
+
+
+def _state_deriv(state: np.ndarray, t: float, beta_vector: np.ndarray, precursor_constants: np.ndarray, total_beta: float,
+                 period: float, h: float, M_M: float, C_M: float, W_M: float, M_F: float, C_F: float, T_in: float,
+                 rho_ext: float, a_F: float, a_M: float) -> np.ndarray:
     """Function to compute the time derivative of the reactor state, including the population count and the precursor densities
 
     Args:
         state:
-            ndarray, 1x7 vector where the components represent the state of the reactor at time "t":
+            ndarray, 1x10 vector where the components represent the state of the reactor at time "t":
                 - Component 0 is "n", total neutron population
                 - Components 1-6 are "c_i", precursor densities
             These components are concatenated into a single array to conform to the scipy API
@@ -133,17 +163,23 @@ def _state_deriv(state: np.ndarray, t: float, beta_vector: np.ndarray, precursor
     Returns:
         ndarray, the time derivative of the reactor state at time "t"
     """
-    dndt = total_neutron_deriv(rho=rho, beta=total_beta, period=period, n=state[0],
-                               precursor_constants=precursor_constants, precursor_density=state[1:-2])
+    dndt = total_neutron_deriv(rho_temp=state[9], rho_ext=state[10], beta=total_beta, period=period, n=state[0],
+                               precursor_constants=precursor_constants, precursor_density=state[1:-4])
 
     dcdt = delay_neutron_deriv(beta_vector=beta_vector, period=period, n=state[0],
-                               precursor_constants=precursor_constants, precursor_density=state[1:-2])
+                               precursor_constants=precursor_constants, precursor_density=state[1:-4])
 
     dT_moddt = mod_temp_deriv(h=h, M_M=M_M, C_M=C_M, W_M=W_M, T_fuel=state[8], T_mod=state[7], T_in=T_in)
 
     dT_fueldt = fuel_temp_deriv(n=state[0], M_F=M_F, C_F=C_F, h=h, T_fuel=state[8], T_mod=state[7])
 
-    state = np.concatenate((np.array([dndt]), dcdt, np.array([dT_moddt, dT_fueldt])), axis=0)
+
+    drho_temp_dt = temp_reactivity_deriv(n=state[0], h=h, M_M=M_M, C_M=C_M, W_M=W_M, M_F=M_F, C_F=C_F, T_in=T_in,
+                                        T_mod=state[7], T_fuel=state[8], a_F=a_F, a_M=a_M)
+
+    drho_ext_dt = ext_reactivity_deriv(t)
+
+    state = np.concatenate((np.array([dndt]), dcdt, np.array([dT_moddt, dT_fueldt, drho_temp_dt, drho_ext_dt])), axis=0)
 
     return state
 
@@ -173,7 +209,7 @@ class Solution:
 
     @property
     def precursor_densities(self):
-        return self._array[:, 1:-2]
+        return self._array[:, 1:-4]
 
     def precursor_density(self, i: int):
         """Get a timeseries of precursor densitity of the ith kind
@@ -195,12 +231,21 @@ class Solution:
     def T_fuel(self):
         return self._array[:, 8]
 
+    @property
+    def rho_temp(self):
+        return self._array[:, 9]
 
-def solve(n_initial: float, precursor_density_initial: np.ndarray, beta_vector: np.ndarray,
-          precursor_constants: np.ndarray, rho: float, total_beta: float, period: float,
-          h: float, M_M: float, C_M: float, W_M: float, M_F: float, C_F: float, T_in: float, T_mod0: float,
-          T_fuel0: float, t_max: float, t_start: float = 0, num_iters: int = 100) -> Solution:
-    """Solve the Inhour equations numerically given some initial reactor state
+    @property
+    def rho_ext(self):
+        return self._array[:, 10]
+
+def solve(n_initial: float,
+          precursor_density_initial: np.ndarray, beta_vector: np.ndarray,
+          precursor_constants: np.ndarray, total_beta: float, period: float, h: float, M_M: float,
+          C_M: float, W_M: float, M_F: float, C_F: float, T_in: float, T_mod0: float, T_fuel0: float,
+          rho_ext: float, a_F: float, a_M: float, t_max: float, t_start: float = 0, num_iters: int = 100) -> Solution:
+
+    """Solving differential equations to calculate parameters of reactor at a certain state
 
     Args:
         n_initial:
@@ -211,8 +256,6 @@ def solve(n_initial: float, precursor_density_initial: np.ndarray, beta_vector: 
             ndarray, 1x6 vector of beta_i                           []
         precursor_constants:
             ndarray, 1x6 vector of lambda_i                         []
-        rho:
-            float, density (presently time independent)             []
         total_beta:
             float, delayed neutron fraction                         []
         period:
@@ -235,6 +278,12 @@ def solve(n_initial: float, precursor_density_initial: np.ndarray, beta_vector: 
             float, temperature of moderator                         [K]
         T_in:
             float, temperature of inlet coolant                     [K]
+        rho_ext:
+             float, External Reactivity (i.e. control rods)         [dK]
+         a_F:
+            float, temperature reactivity coefficient, fuel        [dK/K]
+         a_M:
+            float, temperature reactivity coefficient, moderator   [dK/K]
         t_max:
             float, ending time of simulation                        [sec]
         t_start:
@@ -245,14 +294,15 @@ def solve(n_initial: float, precursor_density_initial: np.ndarray, beta_vector: 
     Returns:
         ndarray, state vector evolution 7xnum_iters
     """
+
     initial_state = np.concatenate((np.array([n_initial]), precursor_density_initial,
-                                    np.array([T_mod0, T_fuel0])), axis=0)
+                                    np.array([T_mod0, T_fuel0, 0, rho_ext])), axis=0)
 
     t = np.linspace(t_start, t_max, num_iters)
 
     deriv_func = functools.partial(_state_deriv, beta_vector=beta_vector, precursor_constants=precursor_constants,
-                                   rho=rho, total_beta=total_beta, period=period, h=h, M_M=M_M, C_M=C_M, W_M=W_M,
-                                   M_F=M_F, C_F=C_F, T_in=T_in)
+                                   total_beta=total_beta, period=period, h=h, M_M=M_M, C_M=C_M, W_M=W_M,
+                                   M_F=M_F, C_F=C_F, T_in=T_in, rho_ext=rho_ext, a_F=a_F, a_M=a_M)
 
     res = odeint(deriv_func, initial_state, t)
 
