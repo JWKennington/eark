@@ -1,4 +1,4 @@
-"""Solving Coupled ODEs to solve Power, Temperature and Reactivity for a given reactor state.
+"""Solving Coupled ODEs
 
 """
 
@@ -28,16 +28,6 @@ def total_neutron_deriv(rho_temp: float, rho_con: float, beta: float, period: fl
 
     Returns:
         float, the time derivative of total neutron population or reactor power
-
-        Examples:
-            Computing a sample time derivative
-            >>> total_neutron_deriv(rho=0.5*0.0075,
-            ...                     beta=0.0075,
-            ...                     period=6.0e-05,
-            ...                     n=4000,
-            ...                     precursor_constants=np.array([0.0124, 0.0305, 0.1110, 0.3011, 1.1400, 3.0100]),
-            ...                     precursor_density=np.array([5000, 6000, 5600, 4700, 7800, 6578]))
-            -219026.44999999998
     """
 
     total_rho = rho_temp + rho_con
@@ -63,15 +53,6 @@ def delay_neutron_deriv(beta_vector: np.ndarray, period: float, n: float, precur
     Returns:
         ndarray 1x6 vector of the time derivative of each of the "i" components of precursor density
 
-        Examples:
-            Computing delayed neutron population vector derivative
-            >>> delay_neutron_deriv(beta_vector=np.array([0.033, 0.219, 0.196, 0.395, 0.115, 0.042]),
-            ...                     period=0.0075,
-            ...                     n=4000,
-            ...                     precursor_constants=np.array([0.0124, 0.0305, 0.1110, 0.3011, 1.1400, 3.0100]),
-            ...                     precursor_density=np.array([5000, 6000, 5600, 4700, 7800, 6578]))
-            array([ 17538.        , 116617.        , 103911.73333333, 209251.49666667,
-                    52441.33333333,   2600.22      ])
     """
     return beta_vector * n / period - precursor_constants * precursor_density
 
@@ -144,6 +125,55 @@ def temp_reactivity_deriv(n:float, h: float, M_M: float, C_M: float, W_M: float,
         """
     return (a_F * fuel_temp_deriv(n=n, M_F=M_F, C_F=C_F, h=h, T_fuel=T_fuel, T_mod=T_mod)) + \
            (a_M * mod_temp_deriv(h=h, M_M= M_M, C_M=C_M, W_M=W_M, T_fuel=T_fuel, T_mod=T_mod, T_in=T_in))
+
+def hydrogenmass_reactivity_deriv(a_H: float, M_H: float) -> float:
+    """Compute time derivative of reactivity due the mass of hydrogen in a region, $\frac{drho_hydrogenmass}{dt}(t)$
+
+        Args:
+            a_H:
+                float, hydrogen mass reactivity coefficient            [dK/kg]
+            M_H:
+                float, mass of hydrogen in the region                  [kg]
+
+    return a_H * M_H
+        """
+    return 0
+
+def hydrogenpress_reactivity_deriv(a_H: float, M_H: float) -> float:
+    """Compute time derivative of reactivity due the pressure of hydrogen in a region, $\frac{drho_hydrogenpress}{dt}(t)$
+
+        Args:
+            a_P:
+                float, hydrogen pressure reactivity coefficient        [dK/Pa]
+            P_H:
+                float, pressure of hydrogen over region                [Pa]
+            P_ref:
+                float, reference hydrogen pressure (101000)            [Pa]
+
+    return a_P * (P_H - P_ref)
+        """
+    return 0
+
+def hydrogenref_reactivity_deriv(a_RH: float, M_RH: float, a_TR: float, T_RS: float, T_ref: float) -> float:
+    def hydrogenpress_reactivity_deriv(a_H: float, M_H: float) -> float:
+        """Compute time derivative of hydrogen reactivity due to reflector regions, $\frac{drho_hydrogenrh}{dt}(t)$
+
+            Args:
+                a_RH:
+                    float, reflector hydrogen mass reactivity coefficient  [dK/kg]
+                M_RH:
+                    float, mass of hydrogen in the reflector region        [kg]
+                a_TR:
+                    float, reflector temperature reactivity coefficient    [dK/K]
+                T_RS:
+                    float, average reflector solid temperature             [K]
+                T_ref:
+                    float, reference temperature of reflector              [K]
+
+
+        return (a_RH * M_RH) + a_TR * (T_RS - T_ref)
+            """
+        return 0
 
 def theta_c_deriv(cdspd:float) -> float:
     """
