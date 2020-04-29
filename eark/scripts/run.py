@@ -6,28 +6,28 @@ from eark import solver, plot
 #         USER INPUTS - DEFINE QUANTITIES         #
 ###################################################
 
-################## PHYSICS PARAMETERS ###################
+################## PHYSICS PARAMETERS #############
 N_INITIAL = 1500e6                                            # initial Reactor Power                    [W]
 a_F = -1.0e-5                                                 # coefficient of reactivity for fuel       [dk/k]
 a_M = -5.0e-5                                                 # coefficient of reactivity for moderator  [dk/K]
 BETA = 0.0075                                                 # delayed neutron fraction
-BETA_VECTOR = np.array([0.00247,
-                        0.0013845,
-                        0.001222,
-                        0.0026455,
-                        0.000832,
-                        0.000169])
-PERIOD = 0.00001                                              # effective generation time                [s]
-PRECURSOR_CONSTANTS = np.array([0.0124,
-                                0.0305,
-                                0.1110,
-                                0.3011,
-                                1.1400,
-                                3.0100])
+BETA_VECTOR = np.array([0.00028,
+                        0.00159,
+                        0.00141,
+                        0.00305,
+                        0.00096,
+                        0.00020])
+PERIOD = 33.5e-6                                              # effective generation time                [s]
+PRECURSOR_CONSTANTS = np.array([0.01323,
+                                0.03900,
+                                0.13900,
+                                0.35900,
+                                1.41000,
+                                4.03000])
 PRECURSOR_DENSITY_INITIAL = BETA_VECTOR / (PRECURSOR_CONSTANTS * PERIOD) * N_INITIAL
 RHO_CON = 0.0                                                 # NEED TO WORK ON THIS. I THINK THIS IS EXCESS REACTIVITY
 
-################## TH PARAMETERS ###################
+################## TH PARAMETERS ##################
 C_F = 200                                                     # specific Heat Capacity of Fuel           [J/kg/K]
 C_M = 4000                                                    # specific Heat Capacity of Moderator      [J/kg/K]
 h = 4e6                                                       # heat transfer coefficient fuel/moderator [J/K/sec]
@@ -38,10 +38,19 @@ T_in = 550                                                    # inlet coolant te
 T_mod0 = T_in + (N_INITIAL / (2 * W_M * C_M))                 # initial moderator temperature            [K]
 T_fuel0 = T_in + (1 / (2 * W_M * C_M) + (1 / h)) * N_INITIAL  # initial fuel temperature                 [K]
 
-########### CONTROL DRUM PARAMETERS ###################
+
+################# FUEL PIN PARAMETERS ##############
+L_F       = 75                                                 # Length of Fuel Element                   [cm]
+D_FLAT    = 1.9050                                             # Flat-to-Flat distance of Fuel Element    [cm]
+D_COOLANT = 0.3454                                             # Coolant Channel Diameter                 [cm]
+D_EFF = D_FLAT * ((2 * np.sqrt(3)) / np.pi)**0.5               # Effective Equivalent Unit Cell Diameter  [cm]
+A_H = np.pi * L_F * D_COOLANT                                  # Heat Interface Area                      [cm^2]
+V_F = np.pi * (D_EFF**2 - D_COOLANT**2) * L_F                  # Fuel Material Volume                     [cm^3]
+
+########### CONTROL DRUM PARAMETERS ################
 CDWRTH  = .0405 * BETA                                         # control drum worth
 CDSPD   = 1.0                                                  # control drum rotation speed             [deg/sec]
-THETA_C0 = 0.0                                                 # initial angle of control drum           [deg]
+THETA_C0 = 180.0                                               # initial angle of control drum           [deg]
 
 def main():
 
@@ -66,7 +75,7 @@ def main():
                         cdspd=CDSPD,
                         cdwrth=CDWRTH,
                         theta_c0= THETA_C0,
-                        t_max=90,
+                        t_max=180,
                         num_iters=1000)
 
 
@@ -79,6 +88,7 @@ def main():
     plot.plot_rho_temp(soln)
     plot.plot_theta_c(soln)
     plot.plot_rho_con(soln)
+    plot.plot_angle_rho_con(soln)
 
 
 if __name__ == '__main__':
