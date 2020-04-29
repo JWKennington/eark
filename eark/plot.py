@@ -139,3 +139,14 @@ def plot_rho_con(soln: solver.Solution, color: str = 'red', legend_position: str
     plt.legend()
     plt.show()
 
+def plot_angle_rho_con(soln: solver.Solution, color: str = 'red', legend_position: str = 'upper left'):
+    theta_c = soln.theta_c
+    rho_con = soln.rho_con
+    plt.plot(theta_c, rho_con, color=color, label='$\\rho_{ext}$', marker='.')
+    plt.xlabel("Drum Angle [degrees]")
+    plt.ylabel("Control Drum Reactivity [$\Delta k$]")
+    plt.ticklabel_format(style='sci', axis='y', scilimits=(-4, -4), useMathText=True)
+    plt.title("Control Drum Angle vs. Control Drum Reactivity")
+    plt.legend()
+    plt.show()
+
