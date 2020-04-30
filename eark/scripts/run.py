@@ -7,7 +7,7 @@ from eark import solver, plot
 ###################################################
 
 ################## PHYSICS PARAMETERS #############
-N_INITIAL = 1500e6                                            # initial Reactor Power                    [W]
+N_INITIAL = 25e6                                                # initial Reactor Power                    [W]
 a_F = -1.0e-5                                                 # coefficient of reactivity for fuel       [dk/k]
 a_M = -5.0e-5                                                 # coefficient of reactivity for moderator  [dk/K]
 BETA = 0.0075                                                 # delayed neutron fraction
@@ -25,7 +25,7 @@ PRECURSOR_CONSTANTS = np.array([0.01323,
                                 1.41000,
                                 4.03000])
 PRECURSOR_DENSITY_INITIAL = BETA_VECTOR / (PRECURSOR_CONSTANTS * PERIOD) * N_INITIAL
-RHO_CON = 0.0                                                 # NEED TO WORK ON THIS. I THINK THIS IS EXCESS REACTIVITY
+RHO_CON = 0.0                                             # NEED TO WORK ON THIS. I THINK THIS IS EXCESS REACTIVITY
 
 ################## TH PARAMETERS ##################
 C_F = 200                                                     # specific Heat Capacity of Fuel           [J/kg/K]
@@ -50,7 +50,7 @@ V_F = np.pi * (D_EFF**2 - D_COOLANT**2) * L_F                  # Fuel Material V
 ########### CONTROL DRUM PARAMETERS ################
 CDWRTH  = .0405 * BETA                                         # control drum worth
 CDSPD   = 1.0                                                  # control drum rotation speed             [deg/sec]
-THETA_C0 = 180.0                                               # initial angle of control drum           [deg]
+THETA_C0 = 0.0                                                 # initial angle of control drum           [deg]
 
 def main():
 
