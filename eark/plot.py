@@ -65,11 +65,11 @@ def plot_solution(soln: solver.Solution, neutron_color: str = 'red', show_densit
 
 def plot_power(soln: solver.Solution, neutron_color: str = 'red', legend_position: str = 'upper left'):
     t = soln.t
-    power = soln.neutron_population / soln.neutron_population[0]
+    power = soln.neutron_population
     plt.plot(t, power, color=neutron_color, label='$P(t)$', marker='.')
     plt.xlabel("Time [s]")
-    plt.ylabel("Normalized Power")
-    plt.title("Normalized Power vs. Time")
+    plt.ylabel("Power")
+    plt.title("Power vs. Time")
     plt.legend()
     plt.show()
 
@@ -118,14 +118,35 @@ def plot_rho_temp(soln: solver.Solution, color: str = 'red', legend_position: st
     plt.legend()
     plt.show()
 
-def plot_rho_ext(soln: solver.Solution, color: str = 'red', legend_position: str = 'upper left'):
+def plot_theta_c(soln: solver.Solution, color: str = 'red', legend_position: str = 'upper left'):
     t = soln.t
-    rho_ext = soln.rho_ext
-    plt.plot(t, rho_ext, color=color, label='$\\rho_{ext}$', marker='.')
+    theta_c = soln.theta_c
+    plt.plot(t, theta_c, color=color, label='$\\theta_{CD}$', marker='.')
     plt.xlabel("Time [s]")
-    plt.ylabel("External Reactivity [$\Delta k$]")
+    plt.ylabel("Control Drum Angle $\\theta_{CD}$ [Degrees]")
+    plt.title("Control Drum Angle vs. Time")
+    plt.legend()
+    plt.show()
+
+def plot_rho_con(soln: solver.Solution, color: str = 'red', legend_position: str = 'upper left'):
+    t = soln.t
+    rho_con = soln.rho_con
+    plt.plot(t, rho_con, color=color, label='$\\rho_{ext}$', marker='.')
+    plt.xlabel("Time [s]")
+    plt.ylabel("Control Drum Reactivity [$\Delta k$]")
     plt.ticklabel_format(style='sci', axis='y', scilimits=(-4, -4), useMathText=True)
-    plt.title("External Reactivity vs. Time")
+    plt.title("Control Drum Reactivity vs. Time")
+    plt.legend()
+    plt.show()
+
+def plot_angle_rho_con(soln: solver.Solution, color: str = 'red', legend_position: str = 'upper left'):
+    theta_c = soln.theta_c
+    rho_con = soln.rho_con
+    plt.plot(theta_c, rho_con, color=color, label='$\\rho_{ext}$', marker='.')
+    plt.xlabel("Drum Angle [degrees]")
+    plt.ylabel("Control Drum Reactivity [$\Delta k$]")
+    plt.ticklabel_format(style='sci', axis='y', scilimits=(-4, -4), useMathText=True)
+    plt.title("Control Drum Angle vs. Control Drum Reactivity")
     plt.legend()
     plt.show()
 
