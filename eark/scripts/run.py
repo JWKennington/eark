@@ -7,36 +7,37 @@ from eark import solver, plot
 ###################################################
 
 ################## PHYSICS PARAMETERS #############
-N_INITIAL = 25e6                                                # initial Reactor Power                    [W]
-a_F = -1.0e-5                                                 # coefficient of reactivity for fuel       [dk/k]
-a_M = -5.0e-5                                                 # coefficient of reactivity for moderator  [dk/K]
-BETA = 0.0075                                                 # delayed neutron fraction
-BETA_VECTOR = np.array([0.00028,
-                        0.00159,
-                        0.00141,
-                        0.00305,
-                        0.00096,
-                        0.00020])
-PERIOD = 33.5e-6                                              # effective generation time                [s]
-PRECURSOR_CONSTANTS = np.array([0.01323,
-                                0.03900,
-                                0.13900,
-                                0.35900,
-                                1.41000,
-                                4.03000])
+N_INITIAL = 474e6                                               # initial Reactor Power                    [W]
+BETA = 0.0071                                                   # delayed neutron fraction
+BETA_VECTOR = np.array([2.23985e-4,
+                        1.18115e-3,
+                        1.16108e-3,
+                        3.29914e-3,
+                        1.00849e-3,
+                        3.57418e-4])
+PERIOD = 2.63382e-5                                           # effective generation time                [s]
+PRECURSOR_CONSTANTS = np.array([1.24906e-2,
+                                3.17621e-2,
+                                1.09665e-1,
+                                3.18385e-1,
+                                1.35073e0,
+                                8.73657e0])
 PRECURSOR_DENSITY_INITIAL = BETA_VECTOR / (PRECURSOR_CONSTANTS * PERIOD) * N_INITIAL
-RHO_CON = 0.0                                             # NEED TO WORK ON THIS. I THINK THIS IS EXCESS REACTIVITY
+
 
 ################## TH PARAMETERS ##################
 C_F = 200                                                     # specific Heat Capacity of Fuel           [J/kg/K]
 C_M = 4000                                                    # specific Heat Capacity of Moderator      [J/kg/K]
 h = 4e6                                                       # heat transfer coefficient fuel/moderator [J/K/sec]
-M_F = 40000                                                   # mass of Fuel                             [kg]
-M_M = 7000                                                    # mass of Moderator                        [kg]
-W_M = 8000                                                    # total moderator/coolant mass flow rate   [kg/sec]
-T_in = 550                                                    # inlet coolant temperature                [K]
-T_mod0 = T_in + (N_INITIAL / (2 * W_M * C_M))                 # initial moderator temperature            [K]
-T_fuel0 = T_in + (1 / (2 * W_M * C_M) + (1 / h)) * N_INITIAL  # initial fuel temperature                 [K]
+M_F = 575                                                     # mass of Fuel                             [kg]
+M_M = 1000                                                    # mass of Moderator                        [kg]
+W_M = 22                                                      # total moderator/coolant mass flow rate   [kg/sec]
+T_in = 300                                                    # inlet coolant temperature                [K]
+T_mod0 = 700                                                  # initial moderator temperature            [K]
+T_fuel0 = 2000                                                # initial fuel temperature                 [K]
+FUEL_GAS_DENSITY = 0.001                                      # fuel element gas density                 [g/cc]
+MODR_GAS_DENSITY = 0.015                                      # moderator return channel gas density     [g/cc]
+MODS_GAS_DENSITY = 0.035                                      # moderator supply channel gas density     [g/cc]
 
 
 ################# FUEL PIN PARAMETERS ##############
@@ -48,9 +49,8 @@ A_H = np.pi * L_F * D_COOLANT                                  # Heat Interface 
 V_F = np.pi * (D_EFF**2 - D_COOLANT**2) * L_F                  # Fuel Material Volume                     [cm^3]
 
 ########### CONTROL DRUM PARAMETERS ################
-CDWRTH  = .0405 * BETA                                         # control drum worth
-CDSPD   = 1.0                                                  # control drum rotation speed             [deg/sec]
-THETA_C0 = 0.0                                                 # initial angle of control drum           [deg]
+CDSPD   =  0.0                                                 # control drum rotation speed             [deg/sec]
+THETA_C0 = 69                                                  # initial angle of control drum           [deg]
 
 def main():
 
@@ -69,13 +69,12 @@ def main():
                         T_in=T_in,
                         T_mod0=T_mod0,
                         T_fuel0=T_fuel0,
-                        rho_con=RHO_CON,
-                        a_F=a_F,
-                        a_M=a_M,
+                        fuel_gas_density=FUEL_GAS_DENSITY,
+                        modr_gas_density=MODR_GAS_DENSITY,
+                        mods_gas_density=MODS_GAS_DENSITY,
                         cdspd=CDSPD,
-                        cdwrth=CDWRTH,
                         theta_c0= THETA_C0,
-                        t_max=180,
+                        t_max= 20,
                         num_iters=1000)
 
 
@@ -85,10 +84,11 @@ def main():
     plot.plot_precursordensities(soln)
     plot.plot_T_mod(soln)
     plot.plot_T_fuel(soln)
-    plot.plot_rho_temp(soln)
-    plot.plot_theta_c(soln)
-    plot.plot_rho_con(soln)
-    plot.plot_angle_rho_con(soln)
+    plot.plot_fuel_temp_reactivity(soln)
+    plot.plot_mod_temp_reactivity(soln)
+    plot.plot_drum_reactivity(soln)
+
+
 
 
 if __name__ == '__main__':
