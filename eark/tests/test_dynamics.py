@@ -17,7 +17,7 @@ class TestDynamicsPopulation:
                                            rho_fuel_temp=_parameters.RHO_FUEL_TEMP0,
                                            temp_mod=_parameters.T_mod0,
                                            drum_angle=_parameters.THETA_C0)
-        np.testing.assert_almost_equal(actual=res, desired=-135667.04254656733, decimal=5)
+        np.testing.assert_almost_equal(actual=res, desired=-644418.452096195, decimal=5)
 
     def test_delay_neutron_deriv(self):
         res = dynamics.delay_neutron_deriv(beta_vector=_parameters.BETA_VECTOR,
@@ -25,7 +25,7 @@ class TestDynamicsPopulation:
                                            power=_parameters.PERIOD,
                                            precursor_constants=_parameters.PRECURSOR_CONSTANTS,
                                            precursor_density=_parameters.PRECURSOR_DENSITY_INITIAL)
-        desired = np.array([-850.41856, -4484.54978, -4408.34869, -12526.0615, -3829.00021, -1357.03239])
+        desired = np.array([-4039.489, -21301.61586, -20939.66062, -59498.80452, -18187.7548, -6445.90521])
         np.testing.assert_almost_equal(actual=res, desired=desired, decimal=5)
 
 
@@ -47,7 +47,7 @@ class TestDynamicsThermal:
                                        heat_coeff=_parameters.h,
                                        temp_fuel=_parameters.T_fuel0,
                                        temp_mod=_parameters.T_mod0)
-        np.testing.assert_almost_equal(actual=res, desired=-45217.39043478261, decimal=5)
+        np.testing.assert_almost_equal(actual=res, desired=-45217.38717391304, decimal=5)
 
 
 class TestDynamicsDrum:
