@@ -29,7 +29,7 @@ The `eark.inhour` module contains utilities for solving the Inhour equations, fo
 >>> rho =  0.5 * beta
 
 # Solve 
->>> solver.solve(n_initial=n_initial,
+>>> solver.solve(power_initial=n_initial,
                  precursor_density_initial=precursor_density,
                  beta_vector=beta_vector,
                  precursor_constants=precursor_constants,

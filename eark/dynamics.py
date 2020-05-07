@@ -12,7 +12,7 @@ import numpy as np
 #################################################
 
 def total_neutron_deriv(beta: float, period: float, n, precursor_constants: np.ndarray,
-                        precursor_density: np.ndarray, rho_fuel_temp: float, temp_mod: float, omega_drum: float) -> float:
+                        precursor_density: np.ndarray, rho_fuel_temp: float, temp_mod: float, drum_angle: float) -> float:
     """Compute time derivative of total neutron population (i.e. reactor power), $\frac{dn}{dt}(t)$
 
     Args:
@@ -29,7 +29,7 @@ def total_neutron_deriv(beta: float, period: float, n, precursor_constants: np.n
             ndarray, 1x6 array of c_i
         rho_fuel_temp
             float, reactivity due to fuel temperature                    [dK]
-        omega_drum:
+        drum_angle:
                 float, angle of control drunk rotation                   [degrees]
 
     Returns:
@@ -37,7 +37,7 @@ def total_neutron_deriv(beta: float, period: float, n, precursor_constants: np.n
     """
     total_rho = rho_fuel_temp + \
                 temp_mod_reactivity(beta, temp_mod) + \
-                drum_reactivity(beta, omega_drum)
+                drum_reactivity(beta, drum_angle)
 
     return (((total_rho - beta) / period) * n) + np.inner(precursor_constants, precursor_density)
 
@@ -119,15 +119,15 @@ def fuel_temp_deriv(power: float, mass_fuel: float, heat_cap_fuel: float, heat_c
 #################################################
 
 
-def omega_drum_deriv(cdspd: float) -> float:
+def drum_angle_deriv(omega_drum: float) -> float:
     """
             Models rotation of drums, $\frac{dtheta_c}{dt}(t)$
 
             Args:
-                cdspd:
+                omega_drum:
                     float, rotation rate of control drums                       [degrees/sec]
     """
-    return cdspd
+    return omega_drum
 
 
 #################################################
@@ -162,14 +162,14 @@ def temp_mod_reactivity(beta: float, temp_mod: float) -> float:
     return beta * ((1.56e-7 * (temp_mod) ** 2) - (1.70e-3 * (temp_mod) + 0.666))
 
 
-def drum_reactivity(beta: float, omega_drum: float) -> float:
+def drum_reactivity(beta: float, drum_angle: float) -> float:
     """Compute reactivity due to control drum rotation
 
         Args:
             beta:
                 float, delayed neutron fraction                          []
-            omega_drum:
+            drum_angle:
                 float, angle of control drunk rotation                   [degrees]
 
     """
-    return beta * ((6.51e-6 * (omega_drum) ** 3) - (1.76e-3 * (omega_drum) ** 2) + (2.13e-2 * omega_drum) + 4.92536)
+    return beta * ((6.51e-6 * (drum_angle) ** 3) - (1.76e-3 * (drum_angle) ** 2) + (2.13e-2 * drum_angle) + 4.92536)

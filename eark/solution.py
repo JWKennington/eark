@@ -53,7 +53,7 @@ class Solution:
 
     @property
     def theta_c(self):
-        return self._array[:, StateComponent.ThetaC]
+        return self._array[:, StateComponent.DrumAngle]
 
     def plot_power(self):
         plot.plot_soln_quantity(t=self.t, y=self.neutron_population, label='$P(t)$', y_label='Power', title='Power v. Time')

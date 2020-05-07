@@ -23,11 +23,11 @@ class StateComponent(enum.IntEnum):
     TMod = 7
     TFuel = 8
     RhoFuelTemp = 9
-    ThetaC = 10
+    DrumAngle = 10
 
 
 class State:
-    __slots__ = ('neutron_population', 'precursor_densities', 't_mod', 't_fuel', 'rho_fuel_temp', 'theta_c')
+    __slots__ = ('neutron_population', 'precursor_densities', 't_mod', 't_fuel', 'rho_fuel_temp', 'drum_angle')
 
     def __init__(self, neutron_population: float, precursor_densities: np.ndarray, t_mod: float, t_fuel: float, rho_fuel_temp: float, theta_c: float):
         """[TBD]
@@ -45,7 +45,7 @@ class State:
         self.t_mod = t_mod
         self.t_fuel = t_fuel
         self.rho_fuel_temp = rho_fuel_temp
-        self.theta_c = theta_c
+        self.drum_angle = theta_c
 
     def to_array(self):
         return np.concatenate((np.array([self.neutron_population]),
@@ -53,7 +53,7 @@ class State:
                                np.array([self.t_mod,
                                          self.t_fuel,
                                          self.rho_fuel_temp,
-                                         self.theta_c])), axis=0)
+                                         self.drum_angle])), axis=0)
 
     @staticmethod
     def from_array(state_array: np.ndarray):
@@ -62,4 +62,4 @@ class State:
                      t_mod=state_array[StateComponent.TMod],
                      t_fuel=state_array[StateComponent.TFuel],
                      rho_fuel_temp=state_array[StateComponent.RhoFuelTemp],
-                     theta_c=state_array[StateComponent.ThetaC])
+                     theta_c=state_array[StateComponent.DrumAngle])
