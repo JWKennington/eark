@@ -12,7 +12,7 @@ import numpy as np
 #################################################
 
 def total_neutron_deriv(beta: float, period: float, n, precursor_constants: np.ndarray,
-                        precursor_density: np.ndarray, rho_fuel_temp: float, temp_mod: float, drum_angle: float) -> float:
+                        precursor_density: np.ndarray, rho_fuel_temp: float, rho_mod_temp: float, drum_angle: float) -> float:
     """Compute time derivative of total neutron population (i.e. reactor power), $\frac{dn}{dt}(t)$
 
     Args:
@@ -36,7 +36,7 @@ def total_neutron_deriv(beta: float, period: float, n, precursor_constants: np.n
         float, the time derivative of total neutron population or reactor power
     """
     total_rho = rho_fuel_temp + \
-                temp_mod_reactivity(beta, temp_mod) + \
+                rho_mod_temp + \
                 drum_reactivity(beta, drum_angle)
 
     return (((total_rho - beta) / period) * n) + np.inner(precursor_constants, precursor_density)
@@ -135,7 +135,8 @@ def drum_angle_deriv(omega_drum: float) -> float:
 #################################################
 
 
-def temp_fuel_reactivity_deriv(beta: float, temp_fuel: float) -> float:
+def temp_fuel_reactivity_deriv(power:float, beta: float, mass_fuel: float, heat_cap_fuel: float, heat_coeff:float,
+                               temp_fuel: float, temp_mod:float) -> float:
     """Compute time derivative of fuel temperature reactivity, $\frac{drho_fuel_temp}{dt}(t)$
 
     Args:
@@ -146,11 +147,15 @@ def temp_fuel_reactivity_deriv(beta: float, temp_fuel: float) -> float:
 
     """
 
-    return beta * (7.64e-7 * temp_fuel - 3.36e-3)
+    return beta * ((7.64e-7 * temp_fuel * fuel_temp_deriv(power=power, mass_fuel=mass_fuel, heat_cap_fuel=heat_cap_fuel,
+                                                          heat_coeff=heat_coeff, temp_fuel=temp_fuel, temp_mod=temp_mod))
+                   - (3.36e-3 * fuel_temp_deriv(power=power, mass_fuel=mass_fuel, heat_cap_fuel=heat_cap_fuel,
+                                                heat_coeff=heat_coeff, temp_fuel=temp_fuel, temp_mod=temp_mod)))
 
 
-def temp_mod_reactivity(beta: float, temp_mod: float) -> float:
-    """Compute reactivity due to moderator temperature.
+def temp_mod_reactivity_deriv(beta: float, heat_coeff: float, mass_mod: float, heat_cap_mod: float, mass_flow: float,
+                        temp_fuel:float, temp_mod: float, temp_in:float) -> float:
+    """Compute time derivative of fuel temperature reactivity, $\frac{drho_mod_temp}{dt}(t)$
 
                 Args:
                     beta:
@@ -159,7 +164,11 @@ def temp_mod_reactivity(beta: float, temp_mod: float) -> float:
                          float, temperature of moderator                            [K]
 
     """
-    return beta * ((1.56e-7 * (temp_mod) ** 2) - (1.70e-3 * (temp_mod) + 0.666))
+    return beta * ((3.12e-7 * (temp_mod) * mod_temp_deriv(heat_coeff=heat_coeff, mass_mod=mass_mod, heat_cap_mod=heat_cap_mod,
+                                                          mass_flow=mass_flow, temp_fuel=temp_fuel, temp_mod=temp_mod,
+                                                          temp_in=temp_in) ) -
+                   (1.70e-3 * mod_temp_deriv(heat_coeff=heat_coeff, mass_mod=mass_mod, heat_cap_mod=heat_cap_mod,
+                                             mass_flow=mass_flow, temp_fuel=temp_fuel, temp_mod=temp_mod, temp_in=temp_in)))
 
 
 def drum_reactivity(beta: float, drum_angle: float) -> float:
