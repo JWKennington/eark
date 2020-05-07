@@ -10,34 +10,7 @@ from eark import solver
 from eark.utilities import plot
 
 
-class TestInhour:
-    @pytest.fixture(scope='class', autouse=True)
-    def beta(self):
-        return 0.0075
-
-    @pytest.fixture(scope='class', autouse=True)
-    def beta_vector(self):
-        return np.array([0.033, 0.219, 0.196, 0.395, 0.115, 0.042])
-
-    @pytest.fixture(scope='class', autouse=True)
-    def n_initial(self):
-        return 4000
-
-    @pytest.fixture(scope='class', autouse=True)
-    def period(self):
-        return 6.0e-5
-
-    @pytest.fixture(scope='class', autouse=True)
-    def precursor_constants(self):
-        return np.array([0.0124, 0.0305, 0.1110, 0.3011, 1.1400, 3.0100])
-
-    @pytest.fixture(scope='class', autouse=True)
-    def precursor_density(self):
-        return np.array([5000, 6000, 5600, 4700, 7800, 6578])
-
-    @pytest.fixture(scope='class', autouse=True)
-    def rho(self, beta):
-        return 0.5 * beta
+class TestPlot:
 
     def test_plot_solution(self, n_initial, precursor_density, precursor_constants, beta_vector, beta, rho, period):
         C_F = 200  # specific Heat Capacity of Fuel [J/kg/K]

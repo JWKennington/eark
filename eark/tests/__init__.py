@@ -2,7 +2,7 @@ import pathlib
 
 import pytest
 
-TEST_ROOT = pathlib.Path(__file__)
+TEST_ROOT = pathlib.Path(__file__).parent
 
 
 def run_tests():

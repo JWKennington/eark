@@ -17,7 +17,7 @@ def plot_soln_quantity(t, y, y_label: str = 'Solution', title: str = 'Solution P
         color = [color]
 
     for i in range(len(y)):
-        label = label if isinstance(label, str) else label(i) if callable(label) else y
+        label = label if isinstance(label, str) else label(i) if callable(label) else y_label
         plt.plot(t, y[i], color=color[i], label=label, marker=marker)
     plt.xlabel(x_label)
     plt.ylabel(y_label)

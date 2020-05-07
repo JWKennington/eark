@@ -48,5 +48,5 @@ The `eark.inhour` module contains utilities for solving the Inhour equations, fo
 The simplest usage of `eark` is to run the test suite. This can ensure the installation was successful.
 ```python
 >>> import eark
->>> eark.test()
+>>> eark.run_tests()
 ```
