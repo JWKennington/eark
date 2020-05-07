@@ -6,19 +6,17 @@ import functools
 
 import numpy as np
 from scipy.integrate import odeint
-import matplotlib.pyplot as plt
-
 
 
 class StateComponent:
-    T_mod         = 7
-    T_fuel        = 8
+    T_mod = 7
+    T_fuel = 8
     rho_fuel_temp = 9
-    theta_c       = 10
+    theta_c = 10
 
 
 def total_neutron_deriv(beta: float, period: float, n, precursor_constants: np.ndarray,
-                        precursor_density: np.ndarray, rho_fuel_temp: float, T_mod:float, fuel_gas_density:float,
+                        precursor_density: np.ndarray, rho_fuel_temp: float, T_mod: float, fuel_gas_density: float,
                         modr_gas_density: float, mods_gas_density: float, theta_c: float) -> float:
     """Compute time derivative of total neutron population (i.e. reactor power), $\frac{dn}{dt}(t)$
 
@@ -123,6 +121,7 @@ def fuel_temp_deriv(n: float, M_F: float, C_F: float, h: float, T_fuel: float, T
     """
     return (n / (M_F * C_F)) - ((h / (M_F * C_F)) * (T_fuel - T_mod))
 
+
 def fuel_temp_reactivity_deriv(beta: float, T_fuel: float) -> float:
     """Compute time derivative of fuel temperature reactivity, $\frac{drho_fuel_temp}{dt}(t)$
 
@@ -135,6 +134,7 @@ def fuel_temp_reactivity_deriv(beta: float, T_fuel: float) -> float:
     """
 
     return beta * (7.64e-7 * T_fuel - 3.36e-3)
+
 
 def theta_c_deriv(cdspd: float) -> float:
     """
@@ -149,7 +149,7 @@ def theta_c_deriv(cdspd: float) -> float:
 
 def _state_deriv(state: np.ndarray, t: float, beta_vector: np.ndarray, precursor_constants: np.ndarray,
                  total_beta: float, period: float, h: float, M_M: float, C_M: float, W_M: float, M_F: float, C_F: float,
-                 T_in: float, fuel_gas_density:float, modr_gas_density:float, mods_gas_density:float, cdspd: float) -> np.ndarray:
+                 T_in: float, fuel_gas_density: float, modr_gas_density: float, mods_gas_density: float, cdspd: float) -> np.ndarray:
     """Function to compute the time derivative of the reactor state, including the population count and the precursor densities
 
     Args:
@@ -166,7 +166,7 @@ def _state_deriv(state: np.ndarray, t: float, beta_vector: np.ndarray, precursor
     """
     dndt = total_neutron_deriv(beta=total_beta, period=period, n=state[0],
                                precursor_constants=precursor_constants, precursor_density=state[1:-4],
-                               rho_fuel_temp= state[StateComponent.rho_fuel_temp], T_mod= state[StateComponent.T_mod],
+                               rho_fuel_temp=state[StateComponent.rho_fuel_temp], T_mod=state[StateComponent.T_mod],
                                fuel_gas_density=fuel_gas_density, modr_gas_density=modr_gas_density,
                                mods_gas_density=mods_gas_density, theta_c=state[StateComponent.theta_c])
 
@@ -250,7 +250,7 @@ class Solution:
 def solve(n_initial: float, precursor_density_initial: np.ndarray, beta_vector: np.ndarray,
           precursor_constants: np.ndarray, total_beta: float, period: float, h: float,
           M_M: float, C_M: float, W_M: float, M_F: float, C_F: float, T_in: float, T_mod0: float, T_fuel0: float,
-          rho_fuel_temp0: float, fuel_gas_density:float, modr_gas_density:float, cdspd: float, mods_gas_density: float, theta_c0: float,
+          rho_fuel_temp0: float, fuel_gas_density: float, modr_gas_density: float, cdspd: float, mods_gas_density: float, theta_c0: float,
           t_max: float, t_start: float = 0, num_iters: int = 100) -> Solution:
     """Solving differential equations to calculate parameters of reactor at a certain state
 
@@ -335,7 +335,7 @@ def solve(n_initial: float, precursor_density_initial: np.ndarray, beta_vector: 
     return Solution(array=res, t=np.arange(t_start, t_max, (t_max - t_start) / num_iters))
 
 
-def mod_temp_reactivity(beta: float, T_mod:float) -> float:
+def mod_temp_reactivity(beta: float, T_mod: float) -> float:
     """Compute reactivity due to moderator temperature.
 
                 Args:
@@ -345,7 +345,8 @@ def mod_temp_reactivity(beta: float, T_mod:float) -> float:
                          float, temperature of moderator                            [K]
 
     """
-    return beta * ((1.56e-7 * (T_mod) ** 2) - (1.70e-3 *(T_mod) + 0.666))
+    return beta * ((1.56e-7 * (T_mod) ** 2) - (1.70e-3 * (T_mod) + 0.666))
+
 
 def fuel_density_reactivity(beta: float, fuel_gas_density: float) -> float:
     """Compute reactivity due to hydrogen gas density in the fuel.
@@ -359,7 +360,8 @@ def fuel_density_reactivity(beta: float, fuel_gas_density: float) -> float:
     """
     return beta * ((216.5 * fuel_gas_density) - 0.025)
 
-def modr_density_reactivity(beta: float, modr_gas_density:float) -> float:
+
+def modr_density_reactivity(beta: float, modr_gas_density: float) -> float:
     """Compute reactivity due to hydrogen gas density in return channel of moderator.
 
                 Args:
@@ -372,7 +374,8 @@ def modr_density_reactivity(beta: float, modr_gas_density:float) -> float:
 
     return beta * ((97.6 * modr_gas_density) - 0.025)
 
-def mods_density_reactivity(beta: float, mods_gas_density:float) -> float:
+
+def mods_density_reactivity(beta: float, mods_gas_density: float) -> float:
     """Compute reactivity due to hydrogen gas density in supply channel of moderator.
 
                 Args:
@@ -385,6 +388,7 @@ def mods_density_reactivity(beta: float, mods_gas_density:float) -> float:
 
     return beta * ((32.2 * mods_gas_density) - 0.004)
 
+
 def drum_reactivity(beta: float, theta_c: float) -> float:
     """Compute reactivity due to control drum rotation
 
@@ -396,4 +400,3 @@ def drum_reactivity(beta: float, theta_c: float) -> float:
 
     """
     return beta * ((6.51e-6 * (theta_c) ** 3) - (1.76e-3 * (theta_c) ** 2) + (2.13e-2 * theta_c) + 4.92536)
-
