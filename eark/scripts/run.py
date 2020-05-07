@@ -1,13 +1,13 @@
 import numpy as np
 
-from eark import solver, plot
+from eark import solver
 
 ###################################################
 #         USER INPUTS - DEFINE QUANTITIES         #
 ###################################################
 
 ################## PHYSICS PARAMETERS #############
-N_INITIAL = 474e6                                               # initial Reactor Power                    [W]
+POWER_INITIAL = 475e6                                               # initial Reactor Power                    [W]
 BETA = 0.0071                                                   # delayed neutron fraction
 BETA_VECTOR = np.array([2.23985e-4,
                         1.18115e-3,
@@ -22,19 +22,20 @@ PRECURSOR_CONSTANTS = np.array([1.24906e-2,
                                 3.18385e-1,
                                 1.35073e0,
                                 8.73657e0])
-PRECURSOR_DENSITY_INITIAL = BETA_VECTOR / (PRECURSOR_CONSTANTS * PERIOD) * N_INITIAL
+PRECURSOR_DENSITY_INITIAL = BETA_VECTOR / (PRECURSOR_CONSTANTS * PERIOD) * POWER_INITIAL
+RHO_FUEL_TEMP_INITIAL = BETA * 0.763
 
 
 ################## TH PARAMETERS ##################
-C_F = 200                                                     # specific Heat Capacity of Fuel           [J/kg/K]
-C_M = 4000                                                    # specific Heat Capacity of Moderator      [J/kg/K]
-h = 4e6                                                       # heat transfer coefficient fuel/moderator [J/K/sec]
-M_F = 575                                                     # mass of Fuel                             [kg]
-M_M = 1000                                                    # mass of Moderator                        [kg]
-W_M = 22                                                      # total moderator/coolant mass flow rate   [kg/sec]
-T_in = 300                                                    # inlet coolant temperature                [K]
-T_mod0 = 700                                                  # initial moderator temperature            [K]
-T_fuel0 = 2000                                                # initial fuel temperature                 [K]
+HEAT_CAP_FUEL = 200                                           # specific Heat Capacity of Fuel           [J/kg/K]
+HEAT_CAP_MOD = 4000                                           # specific Heat Capacity of Moderator      [J/kg/K]
+HEAT_COEFF = 4e6                                              # heat transfer coefficient fuel/moderator [J/K/sec]
+MASS_FUEL = 575                                               # mass of Fuel                             [kg]
+MASS_MOD = 1000                                               # mass of Moderator                        [kg]
+MASS_FLOW = 22                                                # total moderator/coolant mass flow rate   [kg/sec]
+TEMP_IN = 300                                                 # inlet coolant temperature                [K]
+TEMP_MOD_INITIAL = 700                                        # initial moderator temperature            [K]
+TEMP_FUEL_INITIAL = 2000                                      # initial fuel temperature                 [K]
 FUEL_GAS_DENSITY = 0.001                                      # fuel element gas density                 [g/cc]
 MODR_GAS_DENSITY = 0.015                                      # moderator return channel gas density     [g/cc]
 MODS_GAS_DENSITY = 0.035                                      # moderator supply channel gas density     [g/cc]
@@ -49,44 +50,41 @@ A_H = np.pi * L_F * D_COOLANT                                  # Heat Interface 
 V_F = np.pi * (D_EFF**2 - D_COOLANT**2) * L_F                  # Fuel Material Volume                     [cm^3]
 
 ########### CONTROL DRUM PARAMETERS ################
-CDSPD   =  0.0                                                 # control drum rotation speed             [deg/sec]
-THETA_C0 = 69                                                  # initial angle of control drum           [deg]
+OMEGA_DRUM   =  0                                              # control drum rotation speed             [deg/sec]
+DRUM_ANGLE_INITIAL = 69                                        # initial angle of control drum           [deg]
 
 def main():
 
     # Solve
-    soln = solver.solve(n_initial=N_INITIAL,
+    soln = solver.solve(power_initial=POWER_INITIAL,
                         precursor_density_initial=PRECURSOR_DENSITY_INITIAL,
                         beta_vector=BETA_VECTOR,
                         precursor_constants=PRECURSOR_CONSTANTS,
                         total_beta=BETA, period=PERIOD,
-                        h=h,
-                        M_M=M_M,
-                        C_M=C_M,
-                        W_M=W_M,
-                        M_F=M_F,
-                        C_F=C_F,
-                        T_in=T_in,
-                        T_mod0=T_mod0,
-                        T_fuel0=T_fuel0,
-                        fuel_gas_density=FUEL_GAS_DENSITY,
-                        modr_gas_density=MODR_GAS_DENSITY,
-                        mods_gas_density=MODS_GAS_DENSITY,
-                        cdspd=CDSPD,
-                        theta_c0= THETA_C0,
-                        t_max= 20,
+                        heat_coeff=HEAT_COEFF,
+                        mass_mod=MASS_MOD,
+                        heat_cap_mod=HEAT_CAP_MOD,
+                        mass_flow=MASS_FLOW,
+                        mass_fuel=MASS_FUEL,
+                        heat_cap_fuel=HEAT_CAP_FUEL,
+                        temp_in=TEMP_IN,
+                        temp_mod=TEMP_MOD_INITIAL,
+                        temp_fuel=TEMP_FUEL_INITIAL,
+                        rho_fuel_temp= RHO_FUEL_TEMP_INITIAL,
+                        omega_drum=OMEGA_DRUM,
+                        drum_angle= DRUM_ANGLE_INITIAL,
+                        t_max= 35,
                         num_iters=1000)
 
 
 
     # Plot
-    plot.plot_power(soln)
-    plot.plot_precursordensities(soln)
-    plot.plot_T_mod(soln)
-    plot.plot_T_fuel(soln)
-    plot.plot_fuel_temp_reactivity(soln)
-    plot.plot_mod_temp_reactivity(soln)
-    plot.plot_drum_reactivity(soln)
+    soln.plot_power()
+    soln.plot_densities()
+    soln.plot_temp_mod()
+    soln.plot_temp_fuel()
+    # plot.plot_mod_temp_reactivity(soln)
+    # plot.plot_drum_reactivity(soln)
 
 
 
