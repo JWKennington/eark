@@ -19,7 +19,6 @@ branches:
   only:
     - master
 
-
 install:
   - ./.travis/install.sh
   - case "${TOXENV}" in
