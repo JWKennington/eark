@@ -11,7 +11,8 @@ from eark import solver
 DENSITY_COLORS = cmap.mpl_colors
 
 
-def plot_solution(soln: solver.Solution, neutron_color: str = 'red', show_densities: bool = True, output_file: str = None, legend_position: str = 'upper left',
+def plot_solution(soln: solver.Solution, neutron_color: str = 'red', show_densities: bool = True,
+                  output_file: str = None, legend_position: str = 'upper left',
                   y_transform: types.FunctionType = None):
     """Plot a solution
 
@@ -43,15 +44,19 @@ def plot_solution(soln: solver.Solution, neutron_color: str = 'red', show_densit
     ax1.set_xlabel('Time (s)')
     ax1.set_ylabel('Neutron Population{}'.format(y_transform_name), color='black')
     ax1.tick_params(axis='y', labelcolor='black')
-    lines = ax1.plot(t, y_transform(soln.neutron_population) if y_transform is not None else soln.neutron_population, color=neutron_color, label='n') + lines
+    lines = ax1.plot(t, y_transform(soln.neutron_population) if y_transform is not None else soln.neutron_population,
+                     color=neutron_color, label='n') + lines
 
     if show_densities:
         ax2 = ax1.twinx()  # instantiate a second axes that shares the same x-axis
-        ax2.set_ylabel('Precursor Densities{}'.format(y_transform_name), color='black')  # we already handled the x-label with ax1
+        ax2.set_ylabel('Precursor Densities{}'.format(y_transform_name),
+                       color='black')  # we already handled the x-label with ax1
         ax2.tick_params(axis='y', labelcolor='black')
 
         for i in range(1, soln.num_densities + 1):  # 1-indexed to match the math
-            lines.extend(ax2.plot(t, y_transform(soln.precursor_density(i)) if y_transform is not None else soln.precursor_density(i), color=DENSITY_COLORS[i - 1],
+            lines.extend(ax2.plot(t, y_transform(
+                soln.precursor_density(i)) if y_transform is not None else soln.precursor_density(i),
+                                  color=DENSITY_COLORS[i - 1],
                                   label='c_{:d}'.format(i)))
 
     labs = [l.get_label() for l in lines]
@@ -81,8 +86,8 @@ def plot_precursordensities(soln: solver.Solution, color: str = 'red', legend_po
                  label='$c_{:d}$'.format(i))
     plt.xlabel('Time $[s]$')
     plt.ylabel("Concentration of Neutron Precursors, $c_i [\#/dr^3]$")
-    plt.ticklabel_format(style='sci', axis='y', scilimits=(13, 13), useMathText=True)
-    plt.title("Concentration of Neutron Precursors vs. Time$")
+    plt.ticklabel_format(style='sci', axis='y', scilimits=(11, 11), useMathText=True)
+    plt.title("Concentration of Neutron Precursors vs. Time")
     plt.legend()
     plt.show()
 
@@ -97,24 +102,35 @@ def plot_T_mod(soln: solver.Solution, color: str = 'red', legend_position: str =
     plt.legend()
     plt.show()
 
-def plot_T_fuel(soln: solver.Solution, color: str = 'red', legend_position: str = 'upper left'):
-        t = soln.t
-        T_fuel = soln.T_fuel
-        plt.plot(t, T_fuel, color=color, label='$T_{fuel}$', marker='.')
-        plt.xlabel("Time [s]")
-        plt.ylabel("Fuel Temperature [K]")
-        plt.title("Fuel Temperature vs. Time")
-        plt.legend()
-        plt.show()
 
-def plot_rho_temp(soln: solver.Solution, color: str = 'red', legend_position: str = 'upper left'):
+def plot_T_fuel(soln: solver.Solution, color: str = 'red', legend_position: str = 'upper left'):
     t = soln.t
-    rho_temp = soln.rho_temp
-    plt.plot(t, rho_temp, color=color, label='$\\rho_{temp}$', marker='.')
+    T_fuel = soln.T_fuel
+    plt.plot(t, T_fuel, color=color, label='$T_{fuel}$', marker='.')
     plt.xlabel("Time [s]")
-    plt.ylabel("Reactivity Temperature [$\Delta k/K$]")
-    plt.ticklabel_format(style='sci', axis='y', scilimits=(-4, -4), useMathText=True)
-    plt.title("Reactivity Temperature vs. Time")
+    plt.ylabel("Fuel Temperature [K]")
+    plt.title("Fuel Temperature vs. Time")
+    plt.legend()
+    plt.show()
+
+
+def plot_fuel_temp_reactivity(soln: solver.Solution, color: str = 'red', legend_position: str = 'upper left'):
+    t = soln.t
+    plt.plot(t, solver.fuel_temp_reactivity(beta=0.0071, T_fuel=soln.T_fuel), color=color, label='$\\rho_{fuel}$',
+             marker='.')
+    plt.xlabel("Time [seconds]")
+    plt.ylabel("Fuel Temperature Reactivity [$\Delta k$]")
+    plt.title("Fuel Temperature Reactivity vs. Time")
+    plt.legend()
+    plt.show()
+
+def plot_mod_temp_reactivity(soln: solver.Solution, color: str = 'red', legend_position: str = 'upper left'):
+    t = soln.t
+    plt.plot(t, solver.mod_temp_reactivity(beta=0.0071, T_mod=soln.T_mod), color=color, label='$\\rho_{mod}$',
+             marker='.')
+    plt.xlabel("Time [seconds]")
+    plt.ylabel("Moderator Temperature Reactivity [$\Delta k$]")
+    plt.title("Moderator Temperature Reactivity vs. Time")
     plt.legend()
     plt.show()
 
@@ -128,25 +144,13 @@ def plot_theta_c(soln: solver.Solution, color: str = 'red', legend_position: str
     plt.legend()
     plt.show()
 
-def plot_rho_con(soln: solver.Solution, color: str = 'red', legend_position: str = 'upper left'):
+
+def plot_drum_reactivity(soln: solver.Solution, color: str = 'red', legend_position: str = 'upper left'):
     t = soln.t
-    rho_con = soln.rho_con
-    plt.plot(t, rho_con, color=color, label='$\\rho_{ext}$', marker='.')
-    plt.xlabel("Time [s]")
+    plt.plot(t, solver.drum_reactivity(beta=0.0071, theta_c=soln.theta_c), color=color, label='$\\rho_{CD}$',
+             marker='.')
+    plt.xlabel("Time [seconds]")
     plt.ylabel("Control Drum Reactivity [$\Delta k$]")
-    plt.ticklabel_format(style='sci', axis='y', scilimits=(-4, -4), useMathText=True)
     plt.title("Control Drum Reactivity vs. Time")
     plt.legend()
     plt.show()
-
-def plot_angle_rho_con(soln: solver.Solution, color: str = 'red', legend_position: str = 'upper left'):
-    theta_c = soln.theta_c
-    rho_con = soln.rho_con
-    plt.plot(theta_c, rho_con, color=color, label='$\\rho_{ext}$', marker='.')
-    plt.xlabel("Drum Angle [degrees]")
-    plt.ylabel("Control Drum Reactivity [$\Delta k$]")
-    plt.ticklabel_format(style='sci', axis='y', scilimits=(-4, -4), useMathText=True)
-    plt.title("Control Drum Angle vs. Control Drum Reactivity")
-    plt.legend()
-    plt.show()
-
