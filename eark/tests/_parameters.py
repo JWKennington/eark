@@ -5,7 +5,7 @@ import numpy as np
 
 
 ################## PHYSICS PARAMETERS #############
-N_INITIAL = 100                                               # initial Reactor Power                    [W]
+N_INITIAL = 475                                                 # initial Reactor Power                    [W]
 BETA = 0.0071                                                   # delayed neutron fraction
 BETA_VECTOR = np.array([2.23985e-4,
                         1.18115e-3,
