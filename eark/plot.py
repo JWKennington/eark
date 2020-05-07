@@ -114,16 +114,6 @@ def plot_T_fuel(soln: solver.Solution, color: str = 'red', legend_position: str 
     plt.show()
 
 
-def plot_fuel_temp_reactivity(soln: solver.Solution, color: str = 'red', legend_position: str = 'upper left'):
-    t = soln.t
-    plt.plot(t, solver.fuel_temp_reactivity(beta=0.0071, T_fuel=soln.T_fuel), color=color, label='$\\rho_{fuel}$',
-             marker='.')
-    plt.xlabel("Time [seconds]")
-    plt.ylabel("Fuel Temperature Reactivity [$\Delta k$]")
-    plt.title("Fuel Temperature Reactivity vs. Time")
-    plt.legend()
-    plt.show()
-
 def plot_mod_temp_reactivity(soln: solver.Solution, color: str = 'red', legend_position: str = 'upper left'):
     t = soln.t
     plt.plot(t, solver.mod_temp_reactivity(beta=0.0071, T_mod=soln.T_mod), color=color, label='$\\rho_{mod}$',

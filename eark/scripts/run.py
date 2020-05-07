@@ -86,7 +86,6 @@ def main():
     plot.plot_precursordensities(soln)
     plot.plot_T_mod(soln)
     plot.plot_T_fuel(soln)
-    plot.plot_fuel_temp_reactivity(soln)
     plot.plot_mod_temp_reactivity(soln)
     plot.plot_drum_reactivity(soln)
 
