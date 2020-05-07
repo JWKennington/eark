@@ -50,7 +50,7 @@ class TestInhour:
         T_in = 550  # inlet coolant temperature [K]
         T_mod0 = T_in + (N_INITIAL / (2 * W_M * C_M))  # initial moderator temperature [K]
         T_fuel0 = T_in + (1 / (2 * W_M * C_M) + (1 / h)) * N_INITIAL  # initial fuel temperature  [K]
-        soln = solver.solve(n_initial=n_initial,
+        soln = solver.solve(power_initial=n_initial,
                             precursor_density_initial=precursor_density,
                             beta_vector=beta_vector,
                             precursor_constants=precursor_constants,
@@ -59,15 +59,15 @@ class TestInhour:
                             period=period,
                             t_max=1,
                             num_iters=3,
-                            h=h,
-                            M_M=M_M,
-                            C_M=C_M,
-                            W_M=W_M,
-                            M_F=M_F,
-                            C_F=C_F,
-                            T_in=T_in,
-                            T_mod0=T_mod0,
-                            T_fuel0=T_fuel0)
+                            heat_coeff=h,
+                            mass_mod=M_M,
+                            heat_cap_mod=C_M,
+                            mass_flow=W_M,
+                            mass_fuel=M_F,
+                            heat_cap_fuel=C_F,
+                            temp_in=T_in,
+                            temp_mod=T_mod0,
+                            temp_fuel=T_fuel0)
         with tempfile.TemporaryDirectory() as tmpdir:
             # find the temporary path
             plot_file = pathlib.Path(tmpdir) / 'plot_file.png'

@@ -16,7 +16,7 @@ class TestDynamicsPopulation:
                                            precursor_density=_parameters.PRECURSOR_DENSITY_INITIAL,
                                            rho_fuel_temp=_parameters.RHO_FUEL_TEMP0,
                                            temp_mod=_parameters.T_mod0,
-                                           omega_drum=_parameters.THETA_C0)
+                                           drum_angle=_parameters.THETA_C0)
         np.testing.assert_almost_equal(actual=res, desired=-135667.04254656733, decimal=5)
 
     def test_delay_neutron_deriv(self):
@@ -52,7 +52,7 @@ class TestDynamicsThermal:
 
 class TestDynamicsDrum:
     def test_omega_drum_deriv(self):
-        res = dynamics.omega_drum_deriv(1.0)
+        res = dynamics.drum_angle_deriv(1.0)
         np.testing.assert_almost_equal(actual=res, desired=1.0, decimal=5)
 
 
@@ -69,5 +69,5 @@ class TestDynamicsReactivity:
 
     def test_drum_reactivity(self):
         res = dynamics.drum_reactivity(beta=_parameters.BETA,
-                                       omega_drum=_parameters.THETA_C0)
+                                       drum_angle=_parameters.THETA_C0)
         np.testing.assert_almost_equal(actual=res, desired=-0.028645944000000007, decimal=5)
