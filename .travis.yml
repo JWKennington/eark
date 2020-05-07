@@ -21,6 +21,19 @@ branches:
 
 install:
   - ./.travis/install.sh
+  - case "${TOXENV}" in
+      py36)
+      # Install Mac Python3.6 environment
+        conda env create -f environment-36.yml
+      ;;
+      py37)
+        # Install some custom Python 3.3 requirements on macOS
+        conda env create -f environment.yml
+      ;;
+    esac
+
+  - conda activate eark-env
+  - python setup.py install
 
 script:
   - pytest # run tests
