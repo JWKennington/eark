@@ -12,8 +12,7 @@ import numpy as np
 #################################################
 
 def total_neutron_deriv(beta: float, period: float, n, precursor_constants: np.ndarray,
-                        precursor_density: np.ndarray, rho_fuel_temp: float, T_mod: float, fuel_gas_density: float,
-                        modr_gas_density: float, mods_gas_density: float, theta_c: float) -> float:
+                        precursor_density: np.ndarray, rho_fuel_temp: float, temp_mod: float, omega_drum: float) -> float:
     """Compute time derivative of total neutron population (i.e. reactor power), $\frac{dn}{dt}(t)$
 
     Args:
@@ -30,26 +29,20 @@ def total_neutron_deriv(beta: float, period: float, n, precursor_constants: np.n
             ndarray, 1x6 array of c_i
         rho_fuel_temp
             float, reactivity due to fuel temperature                    [dK]
-        fuel_gas_density:
-            float, gas density in the fuel                               [g/cc]
-        modr_gas_density:
-            float, gas density in return channel of moderator            [g/cc]
-        mods_gas_density:
-            float, gas density in supply channel of moderator            [g/cc]
-        theta_c:
+        omega_drum:
                 float, angle of control drunk rotation                   [degrees]
 
     Returns:
         float, the time derivative of total neutron population or reactor power
     """
     total_rho = rho_fuel_temp + \
-                mod_temp_reactivity(beta, T_mod) + \
-                drum_reactivity(beta, theta_c)
+                temp_mod_reactivity(beta, temp_mod) + \
+                drum_reactivity(beta, omega_drum)
 
     return (((total_rho - beta) / period) * n) + np.inner(precursor_constants, precursor_density)
 
 
-def delay_neutron_deriv(beta_vector: np.ndarray, period: float, n: float, precursor_constants: np.ndarray,
+def delay_neutron_deriv(beta_vector: np.ndarray, period: float, power: float, precursor_constants: np.ndarray,
                         precursor_density: np.ndarray) -> np.ndarray:
     """Compute time derivative of delayed neutron population, $\frac{dc_i}{dt}(t)$
 
@@ -58,7 +51,7 @@ def delay_neutron_deriv(beta_vector: np.ndarray, period: float, n: float, precur
             ndarray, 1x6 vector of fraction of delayed neutrons of ith kind
         period:
             float, effective generation time [seconds]
-        n:
+        power:
             float, reactor power [W]
         precursor_constants:
             ndarray, 1x6 array of lambda_i
@@ -69,7 +62,7 @@ def delay_neutron_deriv(beta_vector: np.ndarray, period: float, n: float, precur
         ndarray 1x6 vector of the time derivative of each of the "i" components of precursor density
 
     """
-    return beta_vector * n / period - precursor_constants * precursor_density
+    return beta_vector * power / period - precursor_constants * precursor_density
 
 
 #################################################
@@ -77,47 +70,48 @@ def delay_neutron_deriv(beta_vector: np.ndarray, period: float, n: float, precur
 #################################################
 
 
-def mod_temp_deriv(h: float, M_M: float, C_M: float, W_M: float, T_fuel: float, T_mod: float, T_in: float) -> float:
+def mod_temp_deriv(heat_coeff: float, mass_mod: float, heat_cap_mod: float, mass_flow: float,
+                   temp_fuel: float, temp_mod: float, temp_in: float) -> float:
     """Compute time derivative of moderator temperature, $\frac{dT_mod}{dt}(t)$
 
     Args:
-        h:
+        heat_coeff:
             float, heat transfer coefficient of fuel and moderator [J/K/sec]
-        M_M:
+        mass_mod:
             float, mass of moderator                               [kg]
-        C_M:
+        heat_cap_mod:
             float, specific Heat capacity of moderator             [J/kg/K]
-        W_M:
+        mass_flow:
             float, total moderator/coolant mass flow rate          [kg/sec]
-        T_fuel:
+        temp_fuel:
             float, temperature of fuel                             [K]
-        T_mod:
+        temp_mod:
             float, temperature of moderator                        [K]
-        T_in:
+        temp_in:
             float, temperature of inlet coolant                    [K]
     """
-    return (h / (M_M * C_M)) * (T_fuel - T_mod) - (2 * W_M / M_M) * (T_mod - T_in)
+    return (heat_coeff / (mass_mod * heat_cap_mod)) * (temp_fuel - temp_mod) - (2 * mass_flow / mass_mod) * (temp_mod - temp_in)
 
 
-def fuel_temp_deriv(n: float, M_F: float, C_F: float, h: float, T_fuel: float, T_mod: float) -> float:
+def fuel_temp_deriv(power: float, mass_fuel: float, heat_cap_fuel: float, heat_coeff: float, temp_fuel: float, temp_mod: float) -> float:
     """Compute time derivative of fuel temperature, $\frac{dT_fuel}{dt}(t)$
 
     Args:
-        n:
+        power:
             float, Reactor Power                                   [W]
-        M_F:
+        mass_fuel:
             float, mass of fuel                                    [kg]
-        C_F:
+        heat_cap_fuel:
             float, specific heat capacity of fuel                  [J/kg/K]
-        h:
+        heat_coeff:
             float, heat transfer coefficient of fuel and moderator [J/K/sec]
-        T_fuel:
+        temp_fuel:
             float, temperature of fuel                             [K]
-        T_mod:
+        temp_mod:
             float, temperature of moderator                        [K]
 
     """
-    return (n / (M_F * C_F)) - ((h / (M_F * C_F)) * (T_fuel - T_mod))
+    return (power / (mass_fuel * heat_cap_fuel)) - ((heat_coeff / (mass_fuel * heat_cap_fuel)) * (temp_fuel - temp_mod))
 
 
 #################################################
@@ -125,7 +119,7 @@ def fuel_temp_deriv(n: float, M_F: float, C_F: float, h: float, T_fuel: float, T
 #################################################
 
 
-def theta_c_deriv(cdspd: float) -> float:
+def omega_drum_deriv(cdspd: float) -> float:
     """
             Models rotation of drums, $\frac{dtheta_c}{dt}(t)$
 
@@ -141,41 +135,41 @@ def theta_c_deriv(cdspd: float) -> float:
 #################################################
 
 
-def fuel_temp_reactivity_deriv(beta: float, T_fuel: float) -> float:
+def temp_fuel_reactivity_deriv(beta: float, temp_fuel: float) -> float:
     """Compute time derivative of fuel temperature reactivity, $\frac{drho_fuel_temp}{dt}(t)$
 
     Args:
         beta:
             float, delayed neutron fraction                        []
-        T_fuel:
+        temp_fuel:
             float, temperature of fuel                             [K]
 
     """
 
-    return beta * (7.64e-7 * T_fuel - 3.36e-3)
+    return beta * (7.64e-7 * temp_fuel - 3.36e-3)
 
 
-def mod_temp_reactivity(beta: float, T_mod: float) -> float:
+def temp_mod_reactivity(beta: float, temp_mod: float) -> float:
     """Compute reactivity due to moderator temperature.
 
                 Args:
                     beta:
                          float, delayed neutron fraction                            []
-                    T_mod:
+                    temp_mod:
                          float, temperature of moderator                            [K]
 
     """
-    return beta * ((1.56e-7 * (T_mod) ** 2) - (1.70e-3 * (T_mod) + 0.666))
+    return beta * ((1.56e-7 * (temp_mod) ** 2) - (1.70e-3 * (temp_mod) + 0.666))
 
 
-def drum_reactivity(beta: float, theta_c: float) -> float:
+def drum_reactivity(beta: float, omega_drum: float) -> float:
     """Compute reactivity due to control drum rotation
 
         Args:
             beta:
                 float, delayed neutron fraction                          []
-            theta_c:
+            omega_drum:
                 float, angle of control drunk rotation                   [degrees]
 
     """
-    return beta * ((6.51e-6 * (theta_c) ** 3) - (1.76e-3 * (theta_c) ** 2) + (2.13e-2 * theta_c) + 4.92536)
+    return beta * ((6.51e-6 * (omega_drum) ** 3) - (1.76e-3 * (omega_drum) ** 2) + (2.13e-2 * omega_drum) + 4.92536)
