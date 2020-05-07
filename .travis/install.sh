@@ -31,3 +31,14 @@ else
   # Useful for debugging any issues with conda
   conda info -a
 fi
+
+case "${TOXENV}" in
+py36)
+  # Install Mac Python3.6 environment
+  conda env create -f environment-36.yml
+  ;;
+py37)
+  # Install some custom Python 3.3 requirements on macOS
+  conda env create -f environment.yml
+  ;;
+esac
