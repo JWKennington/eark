@@ -52,11 +52,16 @@ class Solution:
         return self._array[:, StateComponent.RhoFuelTemp]
 
     @property
+    def rho_mod_temp(self):
+        return self._array[:, StateComponent.RhoModTemp]
+
+    @property
     def drum_angle(self):
         return self._array[:, StateComponent.DrumAngle]
 
     def plot_power(self, output_file: str = None):
-        plot.plot_soln_quantity(t=self.t, y=self.neutron_population, label='$P(t)$', y_label='Power', title='Power v. Time', output_file=output_file)
+        plot.plot_soln_quantity(t=self.t, y=self.neutron_population, label='$P(t)$', y_label='Power',
+                                title='Power v. Time', output_file=output_file)
 
     def plot_densities(self, output_file: str = None):
         plot.plot_soln_quantity(t=self.t, y=[self.precursor_density(i) for i in range(1, 7)], label=lambda i: '$c_{:d}$'.format(i),
@@ -65,8 +70,17 @@ class Solution:
                                 y_label="Concentration of Neutron Precursors, $c_i [\#/dr^3]$", output_file=output_file)
 
     def plot_temp_fuel(self, output_file: str = None):
-        plot.plot_soln_quantity(t=self.t, y=self.temp_fuel, y_label="Fuel  Temperature [K]", title='Fuel Temperature vs. Time', output_file=output_file)
+        plot.plot_soln_quantity(t=self.t, y=self.temp_fuel, y_label="Fuel  Temperature [K]",
+                                label='$T_{fuel}$', title='Fuel Temperature vs. Time', output_file=output_file)
 
     def plot_temp_mod(self, output_file: str = None):
-        plot.plot_soln_quantity(t=self.t, y=self.temp_mod, y_label="Moderator Temperature [K]", title='Moderator Temperature vs. Time', output_file=output_file)
+        plot.plot_soln_quantity(t=self.t, y=self.temp_mod, y_label="Moderator Temperature [K]",
+                                label='$T_{mod}$', title='Moderator Temperature vs. Time', output_file=output_file)
 
+    def plot_rho_fuel_temp(self, output_file: str = None):
+        plot.plot_soln_quantity(t=self.t, y=self.rho_fuel_temp, y_label="Reactivity due to Fuel Temperature [$\Delta k/K$]",
+                                label='$\\rho_{fuel temp}$', title='Fuel Temperature Reactivity vs. Time', output_file=output_file)
+
+    def plot_rho_mod_temp(self, output_file: str = None):
+        plot.plot_soln_quantity(t=self.t, y=self.rho_mod_temp, y_label="Reactivity due to Moderator Temperature [$\Delta k/K$]",
+                                label='$\\rho_{mod temp}$', title='Moderator Temperature Reactivity vs. Time', output_file=output_file)
