@@ -7,7 +7,7 @@ from eark import solver, plot
 ###################################################
 
 ################## PHYSICS PARAMETERS #############
-N_INITIAL = 474e6                                               # initial Reactor Power                    [W]
+N_INITIAL = 100                                               # initial Reactor Power                    [W]
 BETA = 0.0071                                                   # delayed neutron fraction
 BETA_VECTOR = np.array([2.23985e-4,
                         1.18115e-3,
@@ -23,6 +23,7 @@ PRECURSOR_CONSTANTS = np.array([1.24906e-2,
                                 1.35073e0,
                                 8.73657e0])
 PRECURSOR_DENSITY_INITIAL = BETA_VECTOR / (PRECURSOR_CONSTANTS * PERIOD) * N_INITIAL
+RHO_FUEL_TEMP0 = BETA * 0.763
 
 
 ################## TH PARAMETERS ##################
@@ -49,8 +50,8 @@ A_H = np.pi * L_F * D_COOLANT                                  # Heat Interface 
 V_F = np.pi * (D_EFF**2 - D_COOLANT**2) * L_F                  # Fuel Material Volume                     [cm^3]
 
 ########### CONTROL DRUM PARAMETERS ################
-CDSPD   =  0.0                                                 # control drum rotation speed             [deg/sec]
-THETA_C0 = 69                                                  # initial angle of control drum           [deg]
+CDSPD   =  -1.0                                                 # control drum rotation speed             [deg/sec]
+THETA_C0 = 100                                                 # initial angle of control drum           [deg]
 
 def main():
 
@@ -69,12 +70,13 @@ def main():
                         T_in=T_in,
                         T_mod0=T_mod0,
                         T_fuel0=T_fuel0,
+                        rho_fuel_temp0= RHO_FUEL_TEMP0,
                         fuel_gas_density=FUEL_GAS_DENSITY,
                         modr_gas_density=MODR_GAS_DENSITY,
                         mods_gas_density=MODS_GAS_DENSITY,
                         cdspd=CDSPD,
                         theta_c0= THETA_C0,
-                        t_max= 20,
+                        t_max= 35,
                         num_iters=1000)
 
 
