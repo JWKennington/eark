@@ -177,7 +177,7 @@ def _state_deriv(state: np.ndarray, t: float, beta_vector: np.ndarray, precursor
 
     dT_fueldt = fuel_temp_deriv(n=state[0], M_F=M_F, C_F=C_F, h=h, T_fuel=state[StateComponent.T_fuel], T_mod=state[StateComponent.T_mod])
 
-    drho_fuel_temp_dt = fuel_temp_reactivity_deriv(beta=total_beta, T_fuel=[StateComponent.T_fuel])
+    drho_fuel_temp_dt = fuel_temp_reactivity_deriv(beta=total_beta, T_fuel=state[StateComponent.T_fuel])
 
     dtheta_c_dt = theta_c_deriv(cdspd=cdspd)
 
