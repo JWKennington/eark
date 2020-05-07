@@ -24,6 +24,7 @@ PRECURSOR_CONSTANTS = np.array([1.24906e-2,
                                 8.73657e0])
 PRECURSOR_DENSITY_INITIAL = BETA_VECTOR / (PRECURSOR_CONSTANTS * PERIOD) * POWER_INITIAL
 RHO_FUEL_TEMP_INITIAL = BETA * 0.763
+RHO_MOD_TEMP_INITIAL = BETA * 0.666
 
 
 ################## TH PARAMETERS ##################
@@ -71,6 +72,7 @@ def main():
                         temp_mod=TEMP_MOD_INITIAL,
                         temp_fuel=TEMP_FUEL_INITIAL,
                         rho_fuel_temp= RHO_FUEL_TEMP_INITIAL,
+                        rho_mod_temp= RHO_MOD_TEMP_INITIAL,
                         omega_drum=OMEGA_DRUM,
                         drum_angle= DRUM_ANGLE_INITIAL,
                         t_max= 35,
@@ -83,7 +85,8 @@ def main():
     soln.plot_densities()
     soln.plot_temp_mod()
     soln.plot_temp_fuel()
-    # plot.plot_mod_temp_reactivity(soln)
+    soln.plot_rho_fuel_temp()
+    soln.plot_rho_mod_temp()
     # plot.plot_drum_reactivity(soln)
 
 
