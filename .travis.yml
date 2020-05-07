@@ -21,6 +21,7 @@ branches:
 
 install:
   - ./.travis/install.sh
+  - source "$HOME/miniconda/etc/profile.d/conda.sh"
   - conda activate eark-env
   - python setup.py install
 
