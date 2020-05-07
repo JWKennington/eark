@@ -2,7 +2,8 @@ import pathlib
 
 import pytest
 
-TEST_ROOT = pathlib.Path(__file__).parent
+TEST_ROOT = pathlib.Path(__file__).parent.parent
+# TEST_ROOT_UTILITIES = TEST_ROOT.parent / 'utilities' / 'tests'
 
 
 def run_tests():
