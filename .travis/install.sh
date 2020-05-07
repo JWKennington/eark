@@ -6,6 +6,9 @@ echo "TOXENV = $TOXENV"
 
 if [ $TRAVIS_OS_NAME = 'osx' ]; then
 
+  # Install wget on mac using Brew
+  brew install wget
+
   # Install miniconda on macOS
   wget https://repo.continuum.io/miniconda/Miniconda3-latest-MacOSX-x86_64.sh -O miniconda.sh
   bash miniconda.sh -b -p $HOME/miniconda
