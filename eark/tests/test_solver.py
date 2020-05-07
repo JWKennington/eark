@@ -4,6 +4,7 @@
 import numpy as np
 import pytest
 
+import eark.dynamics
 from eark import solver
 
 
@@ -37,20 +38,20 @@ class TestInhour:
         return 0.5 * beta
 
     def test_total_neutron_deriv(self, rho, beta, period, n_initial, precursor_constants, precursor_density):
-        res = solver.total_neutron_deriv(rho=rho,
-                                         beta=beta,
-                                         period=period,
-                                         n=n_initial,
-                                         precursor_constants=precursor_constants,
-                                         precursor_density=precursor_density)
+        res = eark.dynamics.total_neutron_deriv(rho=rho,
+                                                beta=beta,
+                                                period=period,
+                                                n=n_initial,
+                                                precursor_constants=precursor_constants,
+                                                precursor_density=precursor_density)
         np.testing.assert_almost_equal(actual=res, desired=-219026.44999999998, decimal=5)
 
     def test_delay_neutron_deriv(self, period, n_initial, beta_vector, precursor_constants, precursor_density):
-        res = solver.delay_neutron_deriv(beta_vector=beta_vector,
-                                         period=period,
-                                         n=n_initial,
-                                         precursor_constants=precursor_constants,
-                                         precursor_density=precursor_density)
+        res = eark.dynamics.delay_neutron_deriv(beta_vector=beta_vector,
+                                                period=period,
+                                                n=n_initial,
+                                                precursor_constants=precursor_constants,
+                                                precursor_density=precursor_density)
         desired = np.array([2199938., 14599817., 13066045.06667, 26331918.16333, 7657774.66667, 2780200.22])
         np.testing.assert_almost_equal(actual=res, desired=desired, decimal=5)
 

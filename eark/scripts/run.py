@@ -1,6 +1,7 @@
 import numpy as np
 
-from eark import solver, plot
+from eark import solver
+from eark.utilities import plot
 
 ###################################################
 #         USER INPUTS - DEFINE QUANTITIES         #
@@ -82,12 +83,13 @@ def main():
 
 
     # Plot
-    plot.plot_power(soln)
-    plot.plot_precursordensities(soln)
-    plot.plot_T_mod(soln)
-    plot.plot_T_fuel(soln)
-    plot.plot_mod_temp_reactivity(soln)
-    plot.plot_drum_reactivity(soln)
+    soln.plot_power()
+    # plot.plot_power(soln)
+    # plot.plot_precursordensities(soln)
+    # plot.plot_T_mod(soln)
+    # plot.plot_T_fuel(soln)
+    # plot.plot_mod_temp_reactivity(soln)
+    # plot.plot_drum_reactivity(soln)
 
 
 

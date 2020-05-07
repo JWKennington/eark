@@ -6,7 +6,8 @@ import tempfile
 import numpy as np
 import pytest
 
-from eark import solver, plot
+from eark import solver
+from eark.utilities import plot
 
 
 class TestInhour:
