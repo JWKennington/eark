@@ -11,7 +11,7 @@ class TestDynamicsPopulation:
     def test_total_neutron_deriv(self):
         res = dynamics.total_neutron_deriv(beta=_parameters.BETA,
                                            period=_parameters.PERIOD,
-                                           n=_parameters.N_INITIAL,
+                                           power=_parameters.N_INITIAL,
                                            precursor_constants=_parameters.PRECURSOR_CONSTANTS,
                                            precursor_density=_parameters.PRECURSOR_DENSITY_INITIAL,
                                            rho_fuel_temp=_parameters.RHO_FUEL_TEMP0,

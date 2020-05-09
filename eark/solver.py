@@ -8,13 +8,14 @@ import numpy as np
 from scipy.integrate import odeint
 
 from eark import dynamics
+from eark.control import ControlRule
 from eark.solution import Solution
 from eark.state import State
 
 
 def state_deriv_array(state_array: np.ndarray, t: float, beta_vector: np.ndarray, precursor_constants: np.ndarray,
                       total_beta: float, period: float, heat_coeff: float, mass_mod: float, heat_cap_mod: float, mass_flow: float,
-                      mass_fuel: float, heat_cap_fuel: float, temp_in: float, omega_drum: float) -> np.ndarray:
+                      mass_fuel: float, heat_cap_fuel: float, temp_in: float, drum_control_rule: ControlRule) -> np.ndarray:
     """Function to compute the time derivative of the reactor state
 
     Args:
@@ -59,9 +60,9 @@ def state_deriv_array(state_array: np.ndarray, t: float, beta_vector: np.ndarray
     drho_mod_temp_dt = dynamics.temp_mod_reactivity_deriv(beta=total_beta, heat_coeff=heat_coeff, mass_mod=mass_mod, heat_cap_mod=heat_cap_mod,
                                                     mass_flow=mass_flow, temp_fuel=state.t_fuel, temp_mod=state.t_mod, temp_in=temp_in)
 
-    ddrum_angle_dt = dynamics.drum_angle_deriv(omega_drum=omega_drum)
+    ddrum_angle_dt = drum_control_rule.drum_omega(t=t, state=state)
 
-    drho_con_drum_dt = dynamics.con_drum_reactivity(beta=total_beta, omega_drum=omega_drum, drum_angle=state.drum_angle)
+    drho_con_drum_dt = dynamics.con_drum_reactivity_deriv(beta=total_beta, omega_drum=ddrum_angle_dt, drum_angle=state.drum_angle)
 
     state_deriv = State(dndt, dcdt, dT_moddt, dT_fueldt, drho_fuel_temp_dt, drho_mod_temp_dt, ddrum_angle_dt, drho_con_drum_dt)
     return state_deriv.to_array()
@@ -71,7 +72,7 @@ def solve(power_initial: float, precursor_density_initial: np.ndarray, beta_vect
           precursor_constants: np.ndarray, total_beta: float, period: float, heat_coeff: float,
           mass_mod: float, heat_cap_mod: float, mass_flow: float, mass_fuel: float, heat_cap_fuel: float,
           temp_in: float, temp_mod_initial: float, temp_fuel_initial: float, rho_fuel_temp_initial: float, rho_mod_temp_initial: float,
-          omega_drum: float, drum_angle_initial: float, rho_con_drum_initial: float,
+          drum_control_rule: ControlRule, drum_angle_initial: float,
           t_max: float, t_start: float = 0, num_iters: int = 100) -> Solution:
 
     """Solving differential equations to calculate parameters of reactor at a certain state
@@ -131,6 +132,7 @@ def solve(power_initial: float, precursor_density_initial: np.ndarray, beta_vect
         [1] https://docs.scipy.org/doc/scipy/reference/generated/scipy.integrate.odeint.html
     """
     # Build the initial state
+    rho_con_drum_initial = dynamics.con_drum_reactivity(beta=total_beta, drum_angle=drum_angle_initial)
     initial_state = State(power_initial, precursor_density_initial, temp_mod_initial, temp_fuel_initial, rho_fuel_temp_initial, rho_mod_temp_initial,
                           drum_angle_initial, rho_con_drum_initial)
 
@@ -150,7 +152,7 @@ def solve(power_initial: float, precursor_density_initial: np.ndarray, beta_vect
                                    mass_fuel=mass_fuel,
                                    heat_cap_fuel=heat_cap_fuel,
                                    temp_in=temp_in,
-                                   omega_drum=omega_drum)
+                                   drum_control_rule=drum_control_rule)
 
     # Compute result using odeint integrator, see [1] for numerical details
     res = odeint(deriv_func, initial_state.to_array(), t)

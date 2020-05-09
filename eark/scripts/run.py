@@ -7,6 +7,8 @@ from eark import solver
 ###################################################
 
 ################## PHYSICS PARAMETERS #############
+from eark.control import LinearControlRule
+
 POWER_INITIAL = 25e6                                            # initial Reactor Power                    [W]
 BETA = 0.0071                                                   # delayed neutron fraction
 BETA_VECTOR = np.array([2.23985e-4,
@@ -25,7 +27,6 @@ PRECURSOR_CONSTANTS = np.array([1.24906e-2,
 PRECURSOR_DENSITY_INITIAL = BETA_VECTOR / (PRECURSOR_CONSTANTS * PERIOD) * POWER_INITIAL
 RHO_FUEL_TEMP_INITIAL = BETA * -0.671645
 RHO_MOD_TEMP_INITIAL = BETA * -0.0204816
-RHO_CON_DRUM_INITIAL = BETA * 0.6921266
 
 
 ################## TH PARAMETERS ##################
@@ -56,8 +57,9 @@ A_H = np.pi * L_F * D_COOLANT                                  # Heat Interface 
 V_F = np.pi * (D_EFF**2 - D_COOLANT**2) * L_F                  # Fuel Material Volume                     [cm^3]
 
 ########### CONTROL DRUM PARAMETERS ################
-OMEGA_DRUM   =  0                                               # control drum rotation speed             [deg/sec]
-DRUM_ANGLE_INITIAL = 170                                        # initial angle of control drum           [deg]
+OMEGA_DRUM   =  (LinearControlRule(coeff=0, const=-2.8, t_min=20, t_max=30) +
+                 LinearControlRule(coeff=0, const=+1.5, t_min=25, t_max=35))
+DRUM_ANGLE_INITIAL = 90                                        # initial angle of control drum           [deg]
 
 def main():
 
@@ -78,9 +80,8 @@ def main():
                         temp_fuel_initial=TEMP_FUEL_INITIAL,
                         rho_fuel_temp_initial= RHO_FUEL_TEMP_INITIAL,
                         rho_mod_temp_initial= RHO_MOD_TEMP_INITIAL,
-                        omega_drum=OMEGA_DRUM,
+                        drum_control_rule=OMEGA_DRUM,
                         drum_angle_initial= DRUM_ANGLE_INITIAL,
-                        rho_con_drum_initial=RHO_CON_DRUM_INITIAL,
                         t_max= 100,
                         num_iters=1000)
 
@@ -88,11 +89,11 @@ def main():
 
     # Plot
     soln.plot_power()
-    soln.plot_densities()
-    soln.plot_temp_mod()
-    soln.plot_temp_fuel()
-    soln.plot_rho_fuel_temp()
-    soln.plot_rho_mod_temp()
+    # soln.plot_densities()
+    # soln.plot_temp_mod()
+    # soln.plot_temp_fuel()
+    # soln.plot_rho_fuel_temp()
+    # soln.plot_rho_mod_temp()
     soln.plot_rho_con_drum()
     soln.plot_rho_con_drum_angle()
 
