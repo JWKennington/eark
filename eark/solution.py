@@ -28,7 +28,7 @@ class Solution:
         return self._array[:, StateComponent.PrecursorDensity1:StateComponent.TMod]
 
     def precursor_density(self, i: int):
-        """Get a timeseries of precursor densitity of the ith kind
+        """Get a time series of precursor densities of the ith kind
 
         Args:
             i:
@@ -59,6 +59,10 @@ class Solution:
     def drum_angle(self):
         return self._array[:, StateComponent.DrumAngle]
 
+    @property
+    def rho_con_drum(self):
+        return self._array[:, StateComponent.RhoConDrum]
+
     def plot_power(self, output_file: str = None):
         plot.plot_soln_quantity(t=self.t, y=self.neutron_population, label='$P(t)$', y_label='Power',
                                 title='Power v. Time', output_file=output_file)
@@ -84,3 +88,11 @@ class Solution:
     def plot_rho_mod_temp(self, output_file: str = None):
         plot.plot_soln_quantity(t=self.t, y=self.rho_mod_temp, y_label="Reactivity due to Moderator Temperature [$\Delta k/K$]",
                                 label='$\\rho_{mod temp}$', title='Moderator Temperature Reactivity vs. Time', output_file=output_file)
+
+    def plot_rho_con_drum(self, output_file: str = None):
+        plot.plot_soln_quantity(t=self.t, y=self.rho_con_drum, y_label="Control Drum Reactivity [$\Delta k/\\theta_{CD}$]",
+                                label='$\\rho_{CD}$', title='Control Drum Reactivity vs. Time', output_file=output_file)
+
+    def plot_rho_con_drum_angle(self, output_file: str = None):
+        plot.plot_soln_quantity(t=self.drum_angle, y=self.rho_con_drum, y_label="Control Drum Reactivity [$\Delta k/\\theta_{CD}$]",
+                                x_label='Drum Angle [$\\theta_{CD}$]',label='$\\rho_{CD}$', title='Control Drum Reactivity vs. Drum Angle', output_file=output_file)

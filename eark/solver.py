@@ -38,10 +38,10 @@ def state_deriv_array(state_array: np.ndarray, t: float, beta_vector: np.ndarray
     """
     state = State.from_array(state_array)
 
-    dndt = dynamics.total_neutron_deriv(beta=total_beta, period=period, n=state.neutron_population,
+    dndt = dynamics.total_neutron_deriv(beta=total_beta, period=period, power=state.neutron_population,
                                         precursor_constants=precursor_constants, precursor_density=state.precursor_densities,
                                         rho_fuel_temp=state.rho_fuel_temp, rho_mod_temp=state.rho_mod_temp,
-                                        drum_angle=state.drum_angle)
+                                        rho_con_drum=state.rho_con_drum)
 
     dcdt = dynamics.delay_neutron_deriv(beta_vector=beta_vector, period=period, power=state.neutron_population,
                                         precursor_constants=precursor_constants, precursor_density=state.precursor_densities)
@@ -61,15 +61,19 @@ def state_deriv_array(state_array: np.ndarray, t: float, beta_vector: np.ndarray
 
     ddrum_angle_dt = dynamics.drum_angle_deriv(omega_drum=omega_drum)
 
-    state_deriv = State(dndt, dcdt, dT_moddt, dT_fueldt, drho_fuel_temp_dt, drho_mod_temp_dt, ddrum_angle_dt)
+    drho_con_drum_dt = dynamics.con_drum_reactivity(beta=total_beta, omega_drum=omega_drum, drum_angle=state.drum_angle)
+
+    state_deriv = State(dndt, dcdt, dT_moddt, dT_fueldt, drho_fuel_temp_dt, drho_mod_temp_dt, ddrum_angle_dt, drho_con_drum_dt)
     return state_deriv.to_array()
 
 
 def solve(power_initial: float, precursor_density_initial: np.ndarray, beta_vector: np.ndarray,
           precursor_constants: np.ndarray, total_beta: float, period: float, heat_coeff: float,
           mass_mod: float, heat_cap_mod: float, mass_flow: float, mass_fuel: float, heat_cap_fuel: float,
-          temp_in: float, temp_mod: float, temp_fuel: float, rho_fuel_temp: float, rho_mod_temp: float,
-          drum_angle: float, omega_drum: float, t_max: float, t_start: float = 0, num_iters: int = 100) -> Solution:
+          temp_in: float, temp_mod_initial: float, temp_fuel_initial: float, rho_fuel_temp_initial: float, rho_mod_temp_initial: float,
+          omega_drum: float, drum_angle_initial: float, rho_con_drum_initial: float,
+          t_max: float, t_start: float = 0, num_iters: int = 100) -> Solution:
+
     """Solving differential equations to calculate parameters of reactor at a certain state
 
     Args:
@@ -107,10 +111,12 @@ def solve(power_initial: float, precursor_density_initial: np.ndarray, beta_vect
             float, reactivity due to fuel temperature                   [dk/K]
         rho_mod_temp
             float, reactivity due to moderator temperature              [dk/K]
-        cdspd:
+        omega_drum:
             float, rotation rate of control drums                       [degrees/sec]
         drum_angle:
             float, angle of control drunk rotation                      [degrees]
+        rho_con_drum:
+            float, reactivity due to control drum rotation              [dK/theta]
         t_max:
             float, ending time of simulation                            [sec]
         t_start:
@@ -125,7 +131,8 @@ def solve(power_initial: float, precursor_density_initial: np.ndarray, beta_vect
         [1] https://docs.scipy.org/doc/scipy/reference/generated/scipy.integrate.odeint.html
     """
     # Build the initial state
-    initial_state = State(power_initial, precursor_density_initial, temp_mod, temp_fuel, rho_fuel_temp, rho_mod_temp, drum_angle)
+    initial_state = State(power_initial, precursor_density_initial, temp_mod_initial, temp_fuel_initial, rho_fuel_temp_initial, rho_mod_temp_initial,
+                          drum_angle_initial, rho_con_drum_initial)
 
     # Compute time intervals for odeint integrator
     t = np.linspace(t_start, t_max, num_iters)

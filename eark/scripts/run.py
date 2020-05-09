@@ -7,7 +7,7 @@ from eark import solver
 ###################################################
 
 ################## PHYSICS PARAMETERS #############
-POWER_INITIAL = 475e6                                               # initial Reactor Power                    [W]
+POWER_INITIAL = 25e6                                            # initial Reactor Power                    [W]
 BETA = 0.0071                                                   # delayed neutron fraction
 BETA_VECTOR = np.array([2.23985e-4,
                         1.18115e-3,
@@ -15,7 +15,7 @@ BETA_VECTOR = np.array([2.23985e-4,
                         3.29914e-3,
                         1.00849e-3,
                         3.57418e-4])
-PERIOD = 2.63382e-5                                           # effective generation time                [s]
+PERIOD = 2.63382e-5                                             # effective generation time                [s]
 PRECURSOR_CONSTANTS = np.array([1.24906e-2,
                                 3.17621e-2,
                                 1.09665e-1,
@@ -23,8 +23,9 @@ PRECURSOR_CONSTANTS = np.array([1.24906e-2,
                                 1.35073e0,
                                 8.73657e0])
 PRECURSOR_DENSITY_INITIAL = BETA_VECTOR / (PRECURSOR_CONSTANTS * PERIOD) * POWER_INITIAL
-RHO_FUEL_TEMP_INITIAL = BETA * 0.763
-RHO_MOD_TEMP_INITIAL = BETA * 0.666
+RHO_FUEL_TEMP_INITIAL = BETA * -0.671645
+RHO_MOD_TEMP_INITIAL = BETA * -0.0204816
+RHO_CON_DRUM_INITIAL = BETA * 0.6921266
 
 
 ################## TH PARAMETERS ##################
@@ -35,8 +36,12 @@ MASS_FUEL = 575                                               # mass of Fuel    
 MASS_MOD = 1000                                               # mass of Moderator                        [kg]
 MASS_FLOW = 22                                                # total moderator/coolant mass flow rate   [kg/sec]
 TEMP_IN = 300                                                 # inlet coolant temperature                [K]
-TEMP_MOD_INITIAL = 700                                        # initial moderator temperature            [K]
-TEMP_FUEL_INITIAL = 2000                                      # initial fuel temperature                 [K]
+TEMP_MOD_INITIAL = TEMP_IN + \
+                   (POWER_INITIAL / (2 * MASS_FLOW * HEAT_CAP_MOD))
+
+TEMP_FUEL_INITIAL = TEMP_IN + \
+                    (1 / (2 * MASS_FLOW * HEAT_CAP_MOD) + (1 / HEAT_COEFF)) * POWER_INITIAL
+
 FUEL_GAS_DENSITY = 0.001                                      # fuel element gas density                 [g/cc]
 MODR_GAS_DENSITY = 0.015                                      # moderator return channel gas density     [g/cc]
 MODS_GAS_DENSITY = 0.035                                      # moderator supply channel gas density     [g/cc]
@@ -51,8 +56,8 @@ A_H = np.pi * L_F * D_COOLANT                                  # Heat Interface 
 V_F = np.pi * (D_EFF**2 - D_COOLANT**2) * L_F                  # Fuel Material Volume                     [cm^3]
 
 ########### CONTROL DRUM PARAMETERS ################
-OMEGA_DRUM   =  0                                              # control drum rotation speed             [deg/sec]
-DRUM_ANGLE_INITIAL = 69                                        # initial angle of control drum           [deg]
+OMEGA_DRUM   =  0                                               # control drum rotation speed             [deg/sec]
+DRUM_ANGLE_INITIAL = 170                                        # initial angle of control drum           [deg]
 
 def main():
 
@@ -69,13 +74,14 @@ def main():
                         mass_fuel=MASS_FUEL,
                         heat_cap_fuel=HEAT_CAP_FUEL,
                         temp_in=TEMP_IN,
-                        temp_mod=TEMP_MOD_INITIAL,
-                        temp_fuel=TEMP_FUEL_INITIAL,
-                        rho_fuel_temp= RHO_FUEL_TEMP_INITIAL,
-                        rho_mod_temp= RHO_MOD_TEMP_INITIAL,
+                        temp_mod_initial=TEMP_MOD_INITIAL,
+                        temp_fuel_initial=TEMP_FUEL_INITIAL,
+                        rho_fuel_temp_initial= RHO_FUEL_TEMP_INITIAL,
+                        rho_mod_temp_initial= RHO_MOD_TEMP_INITIAL,
                         omega_drum=OMEGA_DRUM,
-                        drum_angle= DRUM_ANGLE_INITIAL,
-                        t_max= 35,
+                        drum_angle_initial= DRUM_ANGLE_INITIAL,
+                        rho_con_drum_initial=RHO_CON_DRUM_INITIAL,
+                        t_max= 100,
                         num_iters=1000)
 
 
@@ -87,7 +93,8 @@ def main():
     soln.plot_temp_fuel()
     soln.plot_rho_fuel_temp()
     soln.plot_rho_mod_temp()
-    # plot.plot_drum_reactivity(soln)
+    soln.plot_rho_con_drum()
+    soln.plot_rho_con_drum_angle()
 
 
 

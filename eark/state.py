@@ -21,13 +21,15 @@ class StateComponent(enum.IntEnum):
     RhoFuelTemp = 9
     RhoModTemp = 10
     DrumAngle = 11
+    RhoConDrum = 12
 
 
 class State:
-    __slots__ = ('neutron_population', 'precursor_densities', 't_mod', 't_fuel', 'rho_fuel_temp', 'rho_mod_temp', 'drum_angle')
+    __slots__ = ('neutron_population', 'precursor_densities', 't_mod', 't_fuel', 'rho_fuel_temp', 'rho_mod_temp', 'drum_angle',
+                 'rho_con_drum')
 
     def __init__(self, neutron_population: float, precursor_densities: np.ndarray, t_mod: float, t_fuel: float,
-                 rho_fuel_temp: float, rho_mod_temp:float, theta_c: float):
+                 rho_fuel_temp: float, rho_mod_temp:float, drum_angle: float, rho_con_drum: float):
         """[TBD]
 
         Args:
@@ -37,7 +39,8 @@ class State:
             t_fuel:
             rho_fuel_temp:
             rho_mod_temp:
-            theta_c:
+            drum_angle:
+            rho_con_drum:
         """
         self.neutron_population = neutron_population
         self.precursor_densities = precursor_densities
@@ -45,7 +48,8 @@ class State:
         self.t_fuel = t_fuel
         self.rho_fuel_temp = rho_fuel_temp
         self.rho_mod_temp = rho_mod_temp
-        self.drum_angle = theta_c
+        self.drum_angle = drum_angle
+        self.rho_con_drum = rho_con_drum
 
     def to_array(self):
         return np.concatenate((np.array([self.neutron_population]),
@@ -54,7 +58,8 @@ class State:
                                          self.t_fuel,
                                          self.rho_fuel_temp,
                                          self.rho_mod_temp,
-                                         self.drum_angle])), axis=0)
+                                         self.drum_angle,
+                                         self.rho_con_drum])), axis=0)
 
     @staticmethod
     def from_array(state_array: np.ndarray):
@@ -64,4 +69,5 @@ class State:
                      t_fuel=state_array[StateComponent.TFuel],
                      rho_fuel_temp=state_array[StateComponent.RhoFuelTemp],
                      rho_mod_temp=state_array[StateComponent.RhoModTemp],
-                     theta_c=state_array[StateComponent.DrumAngle])
+                     drum_angle=state_array[StateComponent.DrumAngle],
+                     rho_con_drum=state_array[StateComponent.RhoConDrum])
