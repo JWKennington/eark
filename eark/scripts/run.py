@@ -1,13 +1,14 @@
 import numpy as np
 
 from eark import solver
+from eark.control import LinearControlRule
 
 ###################################################
 #         USER INPUTS - DEFINE QUANTITIES         #
 ###################################################
 
 ################## PHYSICS PARAMETERS #############
-from eark.control import LinearControlRule
+
 
 POWER_INITIAL = 25e6                                            # initial Reactor Power                    [W]
 BETA = 0.0071                                                   # delayed neutron fraction
@@ -57,9 +58,9 @@ A_H = np.pi * L_F * D_COOLANT                                  # Heat Interface 
 V_F = np.pi * (D_EFF**2 - D_COOLANT**2) * L_F                  # Fuel Material Volume                     [cm^3]
 
 ########### CONTROL DRUM PARAMETERS ################
-OMEGA_DRUM   =  (LinearControlRule(coeff=0, const=-2.8, t_min=20, t_max=30) +
-                 LinearControlRule(coeff=0, const=+1.5, t_min=25, t_max=35))
-DRUM_ANGLE_INITIAL = 90                                        # initial angle of control drum           [deg]
+DRUM_SPEED   =  LinearControlRule(coeff=0, const=0, t_min=0, t_max=0)
+
+DRUM_ANGLE_INITIAL = 64.88                                     # initial angle of control drum           [deg]
 
 def main():
 
@@ -80,20 +81,18 @@ def main():
                         temp_fuel_initial=TEMP_FUEL_INITIAL,
                         rho_fuel_temp_initial= RHO_FUEL_TEMP_INITIAL,
                         rho_mod_temp_initial= RHO_MOD_TEMP_INITIAL,
-                        drum_control_rule=OMEGA_DRUM,
+                        drum_control_rule=DRUM_SPEED,
                         drum_angle_initial= DRUM_ANGLE_INITIAL,
                         t_max= 100,
                         num_iters=1000)
 
-
-
     # Plot
     soln.plot_power()
-    # soln.plot_densities()
-    # soln.plot_temp_mod()
-    # soln.plot_temp_fuel()
-    # soln.plot_rho_fuel_temp()
-    # soln.plot_rho_mod_temp()
+    soln.plot_densities()
+    soln.plot_temp_mod()
+    soln.plot_temp_fuel()
+    soln.plot_rho_fuel_temp()
+    soln.plot_rho_mod_temp()
     soln.plot_rho_con_drum()
     soln.plot_rho_con_drum_angle()
 

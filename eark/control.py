@@ -22,7 +22,7 @@ class ControlRule:
     def rule_applies(self, t: float, state: State):
         raise NotImplementedError
 
-    def drum_omega(self, t: float, state: State):
+    def drum_speed(self, t: float, state: State):
         raise NotImplementedError
 
 
@@ -33,8 +33,8 @@ class CompositeControlRule(ControlRule):
     def rule_applies(self, t: float, state: State):
         return any(rule.rule_applies(t, state) for rule in self.rules)
 
-    def drum_omega(self, t: float, state: State):
-        return sum(rule.drum_omega(t, state) for rule in self.rules)
+    def drum_speed(self, t: float, state: State):
+        return sum(rule.drum_speed(t, state) for rule in self.rules)
 
 
 class LinearControlRule(ControlRule):
@@ -54,7 +54,7 @@ class LinearControlRule(ControlRule):
         return ((self.t_min is not None and t >= self.t_min) or self.t_min is None) and \
                ((self.t_max is not None and t <= self.t_max) or self.t_max is None)
 
-    def drum_omega(self, t: float, state: State):
+    def drum_speed(self, t: float, state: State):
         if self.rule_applies(t, state):
             return self.coeff * t + self.const
         return self.default

@@ -18,22 +18,6 @@ def state_deriv_array(state_array: np.ndarray, t: float, beta_vector: np.ndarray
                       mass_fuel: float, heat_cap_fuel: float, temp_in: float, drum_control_rule: ControlRule) -> np.ndarray:
     """Function to compute the time derivative of the reactor state
 
-    Args:
-        state_array:
-        t:
-        beta_vector:
-        precursor_constants:
-        total_beta:
-        period:
-        heat_coeff:
-        mass_mod:
-        heat_cap_mod:
-        mass_flow:
-        mass_fuel:
-        heat_cap_fuel:
-        temp_in:
-        omega_drum:
-
     Returns:
         ndarray, the time derivative of the reactor state at time "t"
     """
@@ -60,9 +44,9 @@ def state_deriv_array(state_array: np.ndarray, t: float, beta_vector: np.ndarray
     drho_mod_temp_dt = dynamics.temp_mod_reactivity_deriv(beta=total_beta, heat_coeff=heat_coeff, mass_mod=mass_mod, heat_cap_mod=heat_cap_mod,
                                                     mass_flow=mass_flow, temp_fuel=state.t_fuel, temp_mod=state.t_mod, temp_in=temp_in)
 
-    ddrum_angle_dt = drum_control_rule.drum_omega(t=t, state=state)
+    ddrum_angle_dt = drum_control_rule.drum_speed(t=t, state=state)
 
-    drho_con_drum_dt = dynamics.con_drum_reactivity_deriv(beta=total_beta, omega_drum=ddrum_angle_dt, drum_angle=state.drum_angle)
+    drho_con_drum_dt = dynamics.con_drum_reactivity_deriv(beta=total_beta, drum_speed=ddrum_angle_dt, drum_angle=state.drum_angle)
 
     state_deriv = State(dndt, dcdt, dT_moddt, dT_fueldt, drho_fuel_temp_dt, drho_mod_temp_dt, ddrum_angle_dt, drho_con_drum_dt)
     return state_deriv.to_array()
@@ -112,7 +96,7 @@ def solve(power_initial: float, precursor_density_initial: np.ndarray, beta_vect
             float, reactivity due to fuel temperature                   [dk/K]
         rho_mod_temp
             float, reactivity due to moderator temperature              [dk/K]
-        omega_drum:
+        drum_speed:
             float, rotation rate of control drums                       [degrees/sec]
         drum_angle:
             float, angle of control drunk rotation                      [degrees]

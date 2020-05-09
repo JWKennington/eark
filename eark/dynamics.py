@@ -11,8 +11,8 @@ import numpy as np
 #             POPULATION DYNAMICS               #
 #################################################
 
-def total_neutron_deriv(beta: float, period: float, power: float, precursor_constants: np.ndarray,
-                        precursor_density: np.ndarray, rho_fuel_temp: float, rho_mod_temp: float, rho_con_drum: float) -> float:
+def total_neutron_deriv(beta: object, period: object, power: object, precursor_constants: object,
+                        precursor_density: object, rho_fuel_temp: object, rho_mod_temp: object, rho_con_drum: object) -> object:
     """Compute time derivative of total neutron population (i.e. reactor power), $\frac{dn}{dt}(t)$
 
     Args:
@@ -152,7 +152,7 @@ def temp_mod_reactivity_deriv(beta: float, heat_coeff: float, mass_mod: float, h
                                                                        mass_flow=mass_flow, temp_fuel=temp_fuel, temp_mod=temp_mod, temp_in=temp_in))
 
 
-def con_drum_reactivity_deriv(beta: float, omega_drum: float, drum_angle: float) -> float:
+def con_drum_reactivity_deriv(beta: float, drum_speed: float, drum_angle: float) -> float:
     """Models control drum reactivity by the rotation of drums, $\frac{drho_control}{dt}(t)$
 
         Args:
@@ -162,15 +162,13 @@ def con_drum_reactivity_deriv(beta: float, omega_drum: float, drum_angle: float)
                 float, angle of control drunk rotation                   [degrees]
 
     """
-    return beta * ((1.953e-5 * ((drum_angle) ** 2) -
-                    (3.52e-3 * (drum_angle)) + 2.13e-2)
-                   * omega_drum)
+    return beta * ((1.953e-5 * ((drum_angle) ** 2) -(3.52e-3 * (drum_angle)) + 2.13e-2) * drum_speed)
 
 
 CON_DRUM_REACTIVITY_C1 = 6.51e-6
 CON_DRUM_REACTIVITY_C2 = -1.76e-3
 CON_DRUM_REACTIVITY_C3 = 2.13e-2
-CON_DRUM_REACTIVITY_C4 = 4.3
+CON_DRUM_REACTIVITY_C4 = 4.925316
 
 
 def con_drum_reactivity(beta: float, drum_angle: float) -> float:
