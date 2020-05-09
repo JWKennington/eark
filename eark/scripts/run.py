@@ -26,8 +26,6 @@ PRECURSOR_CONSTANTS = np.array([1.24906e-2,
                                 1.35073e0,
                                 8.73657e0])
 PRECURSOR_DENSITY_INITIAL = BETA_VECTOR / (PRECURSOR_CONSTANTS * PERIOD) * POWER_INITIAL
-RHO_FUEL_TEMP_INITIAL = BETA * -0.671645
-RHO_MOD_TEMP_INITIAL = BETA * -0.0204816
 
 
 ################## TH PARAMETERS ##################
@@ -58,9 +56,9 @@ A_H = np.pi * L_F * D_COOLANT                                  # Heat Interface 
 V_F = np.pi * (D_EFF**2 - D_COOLANT**2) * L_F                  # Fuel Material Volume                     [cm^3]
 
 ########### CONTROL DRUM PARAMETERS ################
-DRUM_SPEED   =  LinearControlRule(coeff=0, const=0, t_min=0, t_max=0)
+DRUM_SPEED   =  LinearControlRule(coeff=0, const= 0.0, t_min=0, t_max=0)
 
-DRUM_ANGLE_INITIAL = 64.88                                     # initial angle of control drum           [deg]
+DRUM_ANGLE_INITIAL = 64.65                                     # initial angle of control drum           [deg]
 
 def main():
 
@@ -79,11 +77,9 @@ def main():
                         temp_in=TEMP_IN,
                         temp_mod_initial=TEMP_MOD_INITIAL,
                         temp_fuel_initial=TEMP_FUEL_INITIAL,
-                        rho_fuel_temp_initial= RHO_FUEL_TEMP_INITIAL,
-                        rho_mod_temp_initial= RHO_MOD_TEMP_INITIAL,
                         drum_control_rule=DRUM_SPEED,
                         drum_angle_initial= DRUM_ANGLE_INITIAL,
-                        t_max= 100,
+                        t_max= 180,
                         num_iters=1000)
 
     # Plot

@@ -55,9 +55,8 @@ def state_deriv_array(state_array: np.ndarray, t: float, beta_vector: np.ndarray
 def solve(power_initial: float, precursor_density_initial: np.ndarray, beta_vector: np.ndarray,
           precursor_constants: np.ndarray, total_beta: float, period: float, heat_coeff: float,
           mass_mod: float, heat_cap_mod: float, mass_flow: float, mass_fuel: float, heat_cap_fuel: float,
-          temp_in: float, temp_mod_initial: float, temp_fuel_initial: float, rho_fuel_temp_initial: float, rho_mod_temp_initial: float,
-          drum_control_rule: ControlRule, drum_angle_initial: float,
-          t_max: float, t_start: float = 0, num_iters: int = 100) -> Solution:
+          temp_in: float, temp_mod_initial: float, temp_fuel_initial: float, drum_control_rule: ControlRule,
+          drum_angle_initial: float, t_max: float, t_start: float = 0, num_iters: int = 100) -> Solution:
 
     """Solving differential equations to calculate parameters of reactor at a certain state
 
@@ -116,7 +115,10 @@ def solve(power_initial: float, precursor_density_initial: np.ndarray, beta_vect
         [1] https://docs.scipy.org/doc/scipy/reference/generated/scipy.integrate.odeint.html
     """
     # Build the initial state
+    rho_fuel_temp_initial = dynamics.temp_fuel_reactivity(beta=total_beta, temp_fuel=temp_fuel_initial)
+    rho_mod_temp_initial = dynamics.temp_mod_reactivity(beta=total_beta, temp_mod=temp_mod_initial)
     rho_con_drum_initial = dynamics.con_drum_reactivity(beta=total_beta, drum_angle=drum_angle_initial)
+
     initial_state = State(power_initial, precursor_density_initial, temp_mod_initial, temp_fuel_initial, rho_fuel_temp_initial, rho_mod_temp_initial,
                           drum_angle_initial, rho_con_drum_initial)
 

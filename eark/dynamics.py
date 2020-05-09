@@ -6,6 +6,23 @@ References:
 
 import numpy as np
 
+#################################################
+#                     FROM SERPENT              #
+#################################################
+
+TEMP_FUEL_REACTIVITY_C1 = 3.82e-7
+TEMP_FUEL_REACTIVITY_C2 = -3.36e-3
+TEMP_FUEL_REACTIVITY_C3 = 0.763
+
+TEMP_MOD_REACTIVITY_C1 = 1.56e-7
+TEMP_MOD_REACTIVITY_C2 = -1.70e-3
+TEMP_MOD_REACTIVITY_C3 = 0.666
+
+CON_DRUM_REACTIVITY_C1 = 6.51e-6
+CON_DRUM_REACTIVITY_C2 = -1.76e-3
+CON_DRUM_REACTIVITY_C3 = 2.13e-2
+CON_DRUM_REACTIVITY_C4 = 4.925316
+
 
 #################################################
 #             POPULATION DYNAMICS               #
@@ -165,10 +182,35 @@ def con_drum_reactivity_deriv(beta: float, drum_speed: float, drum_angle: float)
     return beta * ((1.953e-5 * ((drum_angle) ** 2) -(3.52e-3 * (drum_angle)) + 2.13e-2) * drum_speed)
 
 
-CON_DRUM_REACTIVITY_C1 = 6.51e-6
-CON_DRUM_REACTIVITY_C2 = -1.76e-3
-CON_DRUM_REACTIVITY_C3 = 2.13e-2
-CON_DRUM_REACTIVITY_C4 = 4.925316
+def temp_fuel_reactivity(beta: float, temp_fuel: float,) -> float:
+    """
+
+    Args:
+        beta:
+            float, delayed neutron fraction                        []
+        temp_fuel:
+            float, temperature of fuel                             [K]
+
+    """
+
+    return beta * (TEMP_FUEL_REACTIVITY_C1 * temp_fuel ** 2 +
+                   TEMP_FUEL_REACTIVITY_C2 * temp_fuel  +
+                   TEMP_FUEL_REACTIVITY_C3)
+
+def temp_mod_reactivity(beta: float, temp_mod: float,) -> float:
+    """
+
+    Args:
+        beta:
+            float, delayed neutron fraction                        []
+        temp_mod:
+            float, temperature of moderator                        [K]
+
+    """
+
+    return beta * (TEMP_MOD_REACTIVITY_C1 * temp_mod ** 2 +
+                   TEMP_MOD_REACTIVITY_C2 * temp_mod  +
+                   TEMP_MOD_REACTIVITY_C3)
 
 
 def con_drum_reactivity(beta: float, drum_angle: float) -> float:

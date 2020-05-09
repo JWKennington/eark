@@ -82,17 +82,17 @@ class Solution:
                                 label='$T_{mod}$', title='Moderator Temperature vs. Time', output_file=output_file)
 
     def plot_rho_fuel_temp(self, output_file: str = None):
-        plot.plot_soln_quantity(t=self.t, y=self.rho_fuel_temp, y_label="Reactivity due to Fuel Temperature [$\Delta k/K$]",
+        plot.plot_soln_quantity(t=self.t, y=self.rho_fuel_temp, y_label="Fuel Temperature Reactivity [$\Delta k$]",
                                 label='$\\rho_{fuel temp}$', title='Fuel Temperature Reactivity vs. Time', output_file=output_file)
 
     def plot_rho_mod_temp(self, output_file: str = None):
-        plot.plot_soln_quantity(t=self.t, y=self.rho_mod_temp, y_label="Reactivity due to Moderator Temperature [$\Delta k/K$]",
+        plot.plot_soln_quantity(t=self.t, y=self.rho_mod_temp, y_label="Moderator Temperature Reactivity [$\Delta k$]",
                                 label='$\\rho_{mod temp}$', title='Moderator Temperature Reactivity vs. Time', output_file=output_file)
 
     def plot_rho_con_drum(self, output_file: str = None):
-        plot.plot_soln_quantity(t=self.t, y=self.rho_con_drum, y_label="Control Drum Reactivity [$\Delta k/\\theta_{CD}$]",
+        plot.plot_soln_quantity(t=self.t, y=self.rho_con_drum, y_label="Control Drum Reactivity [$\Delta k$]",
                                 label='$\\rho_{CD}$', title='Control Drum Reactivity vs. Time', output_file=output_file)
 
     def plot_rho_con_drum_angle(self, output_file: str = None):
-        plot.plot_soln_quantity(t=self.drum_angle, y=self.rho_con_drum, y_label="Control Drum Reactivity [$\Delta k/\\theta_{CD}$]",
+        plot.plot_soln_quantity(t=self.drum_angle, y=self.rho_con_drum, y_label="Control Drum Reactivity [$\Delta k$]",
                                 x_label='Drum Angle [$\\theta_{CD}$]',label='$\\rho_{CD}$', title='Control Drum Reactivity vs. Drum Angle', output_file=output_file)

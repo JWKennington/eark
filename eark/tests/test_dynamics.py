@@ -14,11 +14,10 @@ class TestDynamicsPopulation:
                                            power=_parameters.POWER_INITIAL,
                                            precursor_constants=_parameters.PRECURSOR_CONSTANTS,
                                            precursor_density=_parameters.PRECURSOR_DENSITY_INITIAL,
-                                           rho_fuel_temp=_parameters.RHO_FUEL_TEMP_INITIAL,
-                                           rho_mod_temp= _parameters.RHO_MOD_TEMP_INITIAL,
-                                           rho_con_drum= dynamics.con_drum_reactivity(beta=_parameters.BETA,
-                                                                                      drum_angle=_parameters.DRUM_ANGLE_INITIAL))
-        np.testing.assert_almost_equal(actual=res, desired=-644418.452096195, decimal=5)
+                                           rho_fuel_temp= dynamics.temp_fuel_reactivity(beta=_parameters.BETA, temp_fuel=_parameters.TEMP_FUEL_INITIAL),
+                                           rho_mod_temp= dynamics.temp_mod_reactivity(beta=_parameters.BETA, temp_mod=_parameters.TEMP_MOD_INITIAL),
+                                           rho_con_drum= dynamics.con_drum_reactivity(beta=_parameters.BETA, drum_angle=_parameters.DRUM_ANGLE_INITIAL))
+        np.testing.assert_almost_equal(actual=res, desired=15502168.996537209, decimal=5)
 
     def test_delay_neutron_deriv(self):
         res = dynamics.delay_neutron_deriv(beta_vector=_parameters.BETA_VECTOR,
@@ -26,7 +25,7 @@ class TestDynamicsPopulation:
                                            power=_parameters.PERIOD,
                                            precursor_constants=_parameters.PRECURSOR_CONSTANTS,
                                            precursor_density=_parameters.PRECURSOR_DENSITY_INITIAL)
-        desired = np.array([-4039.489, -21301.61586, -20939.66062, -59498.80452, -18187.7548, -6445.90521])
+        desired = np.array([-2.12605e+08, -1.12114e+09, -1.10209e+09, -3.13152e+09, -9.57250e+08, -3.39258e+08])
         np.testing.assert_almost_equal(actual=res, desired=desired, decimal=5)
 
 
@@ -39,7 +38,7 @@ class TestDynamicsThermal:
                                       temp_fuel=_parameters.TEMP_FUEL_INITIAL,
                                       temp_mod=_parameters.TEMP_MOD_INITIAL,
                                       temp_in=_parameters.TEMP_IN)
-        np.testing.assert_almost_equal(actual=res, desired=1282.4, decimal=5)
+        np.testing.assert_almost_equal(actual=res, desired=1.7763568394002505e-15, decimal=5)
 
     def test_fuel_temp_deriv(self):
         res = dynamics.fuel_temp_deriv(power=_parameters.POWER_INITIAL,
@@ -48,7 +47,7 @@ class TestDynamicsThermal:
                                        heat_coeff=_parameters.HEAT_COEFF,
                                        temp_fuel=_parameters.TEMP_FUEL_INITIAL,
                                        temp_mod=_parameters.TEMP_MOD_INITIAL)
-        np.testing.assert_almost_equal(actual=res, desired=-45217.38717391304, decimal=5)
+        np.testing.assert_almost_equal(actual=res, desired=2.842170943040401e-14, decimal=5)
 
 
 class TestDynamicsReactivity:
@@ -60,7 +59,7 @@ class TestDynamicsReactivity:
                                                   heat_coeff= _parameters.HEAT_COEFF,
                                                   temp_fuel= _parameters.TEMP_FUEL_INITIAL,
                                                   temp_mod= _parameters.TEMP_MOD_INITIAL)
-        np.testing.assert_almost_equal(actual=res, desired=-1.3007200000000001e-05, decimal=5)
+        np.testing.assert_almost_equal(actual=res, desired=-1.3007200000000001e-5, decimal=5)
 
     def test_temp_mod_reactivity(self):
         res = dynamics.temp_mod_reactivity_deriv(beta=_parameters.BETA,
@@ -71,7 +70,7 @@ class TestDynamicsReactivity:
                                                  temp_fuel=_parameters.TEMP_FUEL_INITIAL,
                                                  temp_mod=_parameters.TEMP_MOD_INITIAL,
                                                  temp_in=_parameters.TEMP_IN)
-        np.testing.assert_almost_equal(actual=res, desired=-0.012634876, decimal=5)
+        np.testing.assert_almost_equal(actual=res, desired=-1.9701184522153366e-20, decimal=5)
 
     def test_drum_reactivity(self):
         res = dynamics.con_drum_reactivity_deriv(beta=_parameters.BETA,
