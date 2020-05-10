@@ -10,7 +10,7 @@ from palettable.scientific.sequential import Batlow_6 as cmap
 DENSITY_COLORS = cmap.mpl_colors
 
 
-def plot_soln_quantity(t, y, y_label: str = 'Solution', title: str = 'Solution Plot', x_label: str = 'Time (s)', color: str = 'red', label: typing.Callable = None,
+def plot_soln_quantity(t, y, y_label: str = 'Solution', title: str = 'Solution Plot', x_label: str = 'Time (s)', color: str = 'red', label: typing.Union[typing.Callable, str] = None,
                        marker: str = '.', output_file: str = None):
     if not isinstance(y, list):
         y = [y]

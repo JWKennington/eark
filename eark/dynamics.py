@@ -6,13 +6,30 @@ References:
 
 import numpy as np
 
+#################################################
+#                     FROM SERPENT              #
+#################################################
+
+TEMP_FUEL_REACTIVITY_C1 = 3.82e-7
+TEMP_FUEL_REACTIVITY_C2 = -3.36e-3
+TEMP_FUEL_REACTIVITY_C3 = 0.763
+
+TEMP_MOD_REACTIVITY_C1 = 1.56e-7
+TEMP_MOD_REACTIVITY_C2 = -1.70e-3
+TEMP_MOD_REACTIVITY_C3 = 0.666
+
+CON_DRUM_REACTIVITY_C1 = 6.51e-6
+CON_DRUM_REACTIVITY_C2 = -1.76e-3
+CON_DRUM_REACTIVITY_C3 = 2.13e-2
+CON_DRUM_REACTIVITY_C4 = 4.925316
+
 
 #################################################
 #             POPULATION DYNAMICS               #
 #################################################
 
-def total_neutron_deriv(beta: float, period: float, n, precursor_constants: np.ndarray,
-                        precursor_density: np.ndarray, rho_fuel_temp: float, temp_mod: float, drum_angle: float) -> float:
+def total_neutron_deriv(beta: object, period: object, power: object, precursor_constants: object,
+                        precursor_density: object, rho_fuel_temp: object, rho_mod_temp: object, rho_con_drum: object) -> object:
     """Compute time derivative of total neutron population (i.e. reactor power), $\frac{dn}{dt}(t)$
 
     Args:
@@ -21,25 +38,27 @@ def total_neutron_deriv(beta: float, period: float, n, precursor_constants: np.n
             float, delayed neutron fraction  []
         period:
             float, effective generation time [seconds]
-        n:
+        power:
             float, reactor power [W]
         precursor_constants:
             ndarray, 1x6 array of lambda_i
         precursor_density:
             ndarray, 1x6 array of c_i
         rho_fuel_temp
-            float, reactivity due to fuel temperature                    [dK]
-        drum_angle:
-                float, angle of control drunk rotation                   [degrees]
+            float, reactivity due to fuel temperature                    [dK/K]
+        rho_mod_temp
+            float, reactivity due to moderator temperature               [dK/K]
+        rho_con_drum:
+            float, reactivity due to control drum rotation               [dK/theta]
 
     Returns:
         float, the time derivative of total neutron population or reactor power
     """
     total_rho = rho_fuel_temp + \
-                temp_mod_reactivity(beta, temp_mod) + \
-                drum_reactivity(beta, drum_angle)
+                rho_mod_temp + \
+                rho_con_drum
 
-    return (((total_rho - beta) / period) * n) + np.inner(precursor_constants, precursor_density)
+    return (((total_rho - beta) / period) * power) + np.inner(precursor_constants, precursor_density)
 
 
 def delay_neutron_deriv(beta_vector: np.ndarray, period: float, power: float, precursor_constants: np.ndarray,
@@ -115,27 +134,12 @@ def fuel_temp_deriv(power: float, mass_fuel: float, heat_cap_fuel: float, heat_c
 
 
 #################################################
-#                DRUM DYNAMICS                  #
-#################################################
-
-
-def drum_angle_deriv(omega_drum: float) -> float:
-    """
-            Models rotation of drums, $\frac{dtheta_c}{dt}(t)$
-
-            Args:
-                omega_drum:
-                    float, rotation rate of control drums                       [degrees/sec]
-    """
-    return omega_drum
-
-
-#################################################
 #                  REACTIVITY                   #
 #################################################
 
 
-def temp_fuel_reactivity_deriv(beta: float, temp_fuel: float) -> float:
+def temp_fuel_reactivity_deriv(power: float, beta: float, mass_fuel: float, heat_cap_fuel: float, heat_coeff: float,
+                               temp_fuel: float, temp_mod: float) -> float:
     """Compute time derivative of fuel temperature reactivity, $\frac{drho_fuel_temp}{dt}(t)$
 
     Args:
@@ -146,11 +150,13 @@ def temp_fuel_reactivity_deriv(beta: float, temp_fuel: float) -> float:
 
     """
 
-    return beta * (7.64e-7 * temp_fuel - 3.36e-3)
+    return beta * (((7.64e-7 * temp_fuel) - 3.36e-3) * fuel_temp_deriv(power=power, mass_fuel=mass_fuel, heat_cap_fuel=heat_cap_fuel,
+                                                                       heat_coeff=heat_coeff, temp_fuel=temp_fuel, temp_mod=temp_mod))
 
 
-def temp_mod_reactivity(beta: float, temp_mod: float) -> float:
-    """Compute reactivity due to moderator temperature.
+def temp_mod_reactivity_deriv(beta: float, heat_coeff: float, mass_mod: float, heat_cap_mod: float, mass_flow: float,
+                              temp_fuel: float, temp_mod: float, temp_in: float) -> float:
+    """Compute time derivative of fuel temperature reactivity, $\frac{drho_mod_temp}{dt}(t)$
 
                 Args:
                     beta:
@@ -159,11 +165,12 @@ def temp_mod_reactivity(beta: float, temp_mod: float) -> float:
                          float, temperature of moderator                            [K]
 
     """
-    return beta * ((1.56e-7 * (temp_mod) ** 2) - (1.70e-3 * (temp_mod) + 0.666))
+    return beta * (((3.12e-7 * (temp_mod)) - 1.70e-3) * mod_temp_deriv(heat_coeff=heat_coeff, mass_mod=mass_mod, heat_cap_mod=heat_cap_mod,
+                                                                       mass_flow=mass_flow, temp_fuel=temp_fuel, temp_mod=temp_mod, temp_in=temp_in))
 
 
-def drum_reactivity(beta: float, drum_angle: float) -> float:
-    """Compute reactivity due to control drum rotation
+def con_drum_reactivity_deriv(beta: float, drum_speed: float, drum_angle: float) -> float:
+    """Models control drum reactivity by the rotation of drums, $\frac{drho_control}{dt}(t)$
 
         Args:
             beta:
@@ -172,4 +179,51 @@ def drum_reactivity(beta: float, drum_angle: float) -> float:
                 float, angle of control drunk rotation                   [degrees]
 
     """
-    return beta * ((6.51e-6 * (drum_angle) ** 3) - (1.76e-3 * (drum_angle) ** 2) + (2.13e-2 * drum_angle) + 4.92536)
+    return beta * ((1.953e-5 * ((drum_angle) ** 2) -(3.52e-3 * (drum_angle)) + 2.13e-2) * drum_speed)
+
+
+def temp_fuel_reactivity(beta: float, temp_fuel: float,) -> float:
+    """
+
+    Args:
+        beta:
+            float, delayed neutron fraction                        []
+        temp_fuel:
+            float, temperature of fuel                             [K]
+
+    """
+
+    return beta * (TEMP_FUEL_REACTIVITY_C1 * temp_fuel ** 2 +
+                   TEMP_FUEL_REACTIVITY_C2 * temp_fuel  +
+                   TEMP_FUEL_REACTIVITY_C3)
+
+def temp_mod_reactivity(beta: float, temp_mod: float,) -> float:
+    """
+
+    Args:
+        beta:
+            float, delayed neutron fraction                        []
+        temp_mod:
+            float, temperature of moderator                        [K]
+
+    """
+
+    return beta * (TEMP_MOD_REACTIVITY_C1 * temp_mod ** 2 +
+                   TEMP_MOD_REACTIVITY_C2 * temp_mod  +
+                   TEMP_MOD_REACTIVITY_C3)
+
+
+def con_drum_reactivity(beta: float, drum_angle: float) -> float:
+    """
+
+    Args:
+        beta:
+        drum_angle:
+
+    Returns:
+
+    """
+    return beta * (CON_DRUM_REACTIVITY_C1 * drum_angle ** 3 +
+                   CON_DRUM_REACTIVITY_C2 * drum_angle ** 2 +
+                   CON_DRUM_REACTIVITY_C3 * drum_angle +
+                   CON_DRUM_REACTIVITY_C4)
