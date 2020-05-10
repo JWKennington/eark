@@ -5,6 +5,7 @@ import numpy as np
 
 from eark import dynamics
 from eark.tests import _parameters
+from eark.utilities import testing
 
 
 class TestDynamicsPopulation:
@@ -26,7 +27,8 @@ class TestDynamicsPopulation:
                                            precursor_constants=_parameters.PRECURSOR_CONSTANTS,
                                            precursor_density=_parameters.PRECURSOR_DENSITY_INITIAL)
         desired = np.array([-2.12605e+08, -1.12114e+09, -1.10209e+09, -3.13152e+09, -9.57250e+08, -3.39258e+08])
-        np.testing.assert_almost_equal(actual=res, desired=desired, decimal=5)
+        for r, d in zip(res, desired):
+            np.testing.assert_approx_equal(actual=r, desired=d, significant=5)
 
 
 class TestDynamicsThermal:
@@ -72,8 +74,8 @@ class TestDynamicsReactivity:
                                                  temp_in=_parameters.TEMP_IN)
         np.testing.assert_almost_equal(actual=res, desired=-1.9701184522153366e-20, decimal=5)
 
-    def test_drum_reactivity(self):
+    def test_drum_reactivity_deriv(self):
         res = dynamics.con_drum_reactivity_deriv(beta=_parameters.BETA,
-                                                 drum_speed=_parameters.DRUM_SPEED,
+                                                 drum_speed=1.0,
                                                  drum_angle=_parameters.DRUM_ANGLE_INITIAL)
-        np.testing.assert_almost_equal(actual=res, desired=-0.028645944000000007, decimal=5)
+        np.testing.assert_almost_equal(actual=res, desired=-0.0008849438052825002, decimal=5)

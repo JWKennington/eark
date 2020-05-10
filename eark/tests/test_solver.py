@@ -5,6 +5,7 @@ import numpy as np
 
 from eark import solver
 from eark.tests import _parameters
+from eark.utilities import testing
 
 
 class TestSolver:
@@ -25,16 +26,15 @@ class TestSolver:
                             temp_mod_initial=_parameters.TEMP_MOD_INITIAL,
                             temp_fuel_initial=_parameters.TEMP_FUEL_INITIAL,
                             drum_control_rule=_parameters.DRUM_SPEED,
-                            drum_angle_initial= _parameters.DRUM_ANGLE_INITIAL,
+                            drum_angle_initial=_parameters.DRUM_ANGLE_INITIAL,
                             t_max=3,
                             num_iters=3)
 
-        desired = np.array([[4.75000000e+02, 3.23402336e+05, 6.70661482e+05, 1.90942067e+05, 1.86876919e+05, 1.34651306e+04,
-                             7.37807351e+02, 7.00000000e+02, 2.00000000e+03, 5.41730000e-03, 1.00000000e+02],
-                            [5.55032278e+01, 3.18215495e+05, 6.43696286e+05, 1.65900387e+05, 1.25437100e+05, 3.28257323e+03,
-                             8.78439807e+01, 7.09244142e+02, 7.09747983e+02, 5.38759167e-03, 9.85000000e+01],
-                            [4.56445015e+01, 3.12942313e+05, 6.17038406e+05, 1.43785208e+05, 8.52383969e+04, 1.62916739e+03,
-                             7.18298715e+01, 6.83814217e+02, 6.84286749e+02, 5.35747792e-03, 9.70000000e+01]])
+        desired = np.array([[2.5e+07, 1.70212e+10, 3.5298e+10, 1.00496e+10, 9.83563e+09, 7.08691e+08, 3.8832e+07,
+                             4.42045e+02, 4.48295e+02, -4.73217e-03, -3.90459e-04, 6.465e+01, 5.0077e-03],
+                            [2.50869e+07, 1.70221e+10, 3.53028e+10, 1.00540e+10, 9.84668e+09, 7.10599e+08, 3.89639e+07,
+                             4.42017e+02, 4.48289e+02, -4.73204e-03, -3.90145e-04, 6.465e+01, 5.0077e-03],
+                            [2.51124e+07, 1.70233e+10, 3.53091e+10, 1.00595e+10, 9.85752e+09, 7.11494e+08, 3.90035e+07,
+                             4.41976e+02, 4.48254e+02, -4.73129e-03, -3.89684e-04, 6.465e+01, 5.0077e-03]])
 
-        for a, d in zip(soln.array.ravel().tolist(), desired.ravel().tolist()):
-            np.testing.assert_approx_equal(actual=a, desired=d, significant=3)
+        testing.assert_array_approx_equal(soln.array, desired, significant=5)
