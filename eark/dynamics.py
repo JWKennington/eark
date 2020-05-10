@@ -38,7 +38,7 @@ def total_neutron_deriv(beta: object, period: object, power: object, precursor_c
             float, delayed neutron fraction  []
         period:
             float, effective generation time [seconds]
-        n:
+        power:
             float, reactor power [W]
         precursor_constants:
             ndarray, 1x6 array of lambda_i

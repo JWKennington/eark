@@ -10,15 +10,15 @@ from eark.control import LinearControlRule
 ################## PHYSICS PARAMETERS #############
 
 
-POWER_INITIAL = 25e6                                            # initial Reactor Power                    [W]
-BETA = 0.0071                                                   # delayed neutron fraction
+POWER_INITIAL = 25e6                                          # initial Reactor Power                    [W]
+BETA = 0.0071                                                 # delayed neutron fraction
 BETA_VECTOR = np.array([2.23985e-4,
                         1.18115e-3,
                         1.16108e-3,
                         3.29914e-3,
                         1.00849e-3,
                         3.57418e-4])
-PERIOD = 2.63382e-5                                             # effective generation time                [s]
+PERIOD = 2.63382e-5                                           # effective generation time                [s]
 PRECURSOR_CONSTANTS = np.array([1.24906e-2,
                                 3.17621e-2,
                                 1.09665e-1,
@@ -47,7 +47,7 @@ MODR_GAS_DENSITY = 0.015                                      # moderator return
 MODS_GAS_DENSITY = 0.035                                      # moderator supply channel gas density     [g/cc]
 
 
-################# FUEL PIN PARAMETERS ##############
+################# FUEL PIN PARAMETERS ##############           (NOT IN USE CURRENTLY!)
 L_F       = 75                                                 # Length of Fuel Element                   [cm]
 D_FLAT    = 1.9050                                             # Flat-to-Flat distance of Fuel Element    [cm]
 D_COOLANT = 0.3454                                             # Coolant Channel Diameter                 [cm]
@@ -58,7 +58,7 @@ V_F = np.pi * (D_EFF**2 - D_COOLANT**2) * L_F                  # Fuel Material V
 ########### CONTROL DRUM PARAMETERS ################
 DRUM_SPEED   =  LinearControlRule(coeff=0, const= 0.0, t_min=0, t_max=0)
 
-DRUM_ANGLE_INITIAL = 64.65                                     # initial angle of control drum           [deg]
+DRUM_ANGLE_INITIAL = 64.65                                     # initial angle of control drum            [deg]
 
 def main():
 
@@ -79,7 +79,7 @@ def main():
                         temp_fuel_initial=TEMP_FUEL_INITIAL,
                         drum_control_rule=DRUM_SPEED,
                         drum_angle_initial= DRUM_ANGLE_INITIAL,
-                        t_max= 180,
+                        t_max= 100,
                         num_iters=1000)
 
     # Plot
