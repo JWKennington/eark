@@ -25,12 +25,12 @@ class StateComponent(enum.IntEnum):
 
 
 class State:
-    __slots__ = ('neutron_population', 'precursor_densities', 't_mod', 't_fuel', 'rho_fuel_temp', 'rho_mod_temp', 'drum_angle',
-                 'rho_con_drum')
+    __slots__ = ('neutron_population', 'precursor_densities', 't_mod', 't_fuel', 'rho_fuel_temp', 'rho_mod_temp',
+                 'drum_angle', 'rho_con_drum')
 
     def __init__(self, neutron_population: float, precursor_densities: np.ndarray, t_mod: float, t_fuel: float,
-                 rho_fuel_temp: float, rho_mod_temp:float, drum_angle: float, rho_con_drum: float):
-        """[TBD]
+                 rho_fuel_temp: float, rho_mod_temp: float, drum_angle: float, rho_con_drum: float):
+        """
 
         Args:
             neutron_population:

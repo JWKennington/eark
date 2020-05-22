@@ -1,7 +1,4 @@
 """Module for defining the time-derivatives of the reactor state and the dynamical interactions between coupled variables.
-
-References:
-    [1] Witter JK. Modeling for the Simulation and Control of Nuclear Rocket Systems [Ph.D.]. [Department of Nuclear Engineering]: Massachusetts Institute of Technology; 1993.
 """
 
 import numpy as np
@@ -28,8 +25,8 @@ CON_DRUM_REACTIVITY_C4 = 4.925316
 #             POPULATION DYNAMICS               #
 #################################################
 
-def total_neutron_deriv(beta: object, period: object, power: object, precursor_constants: object,
-                        precursor_density: object, rho_fuel_temp: object, rho_mod_temp: object, rho_con_drum: object) -> object:
+def total_neutron_deriv(beta: float, period: float, power: float, precursor_constants: np.ndarray,
+                        precursor_density: np.ndarray, rho_fuel_temp: float, rho_mod_temp: float, rho_con_drum: float) -> float:
     """Compute time derivative of total neutron population (i.e. reactor power), $\frac{dn}{dt}(t)$
 
     Args:
@@ -57,6 +54,7 @@ def total_neutron_deriv(beta: object, period: object, power: object, precursor_c
     total_rho = rho_fuel_temp + \
                 rho_mod_temp + \
                 rho_con_drum
+
 
     return (((total_rho - beta) / period) * power) + np.inner(precursor_constants, precursor_density)
 

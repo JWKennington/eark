@@ -6,6 +6,7 @@ import functools
 
 import numpy as np
 from scipy.integrate import odeint
+from scipy.optimize import fsolve
 
 from eark import dynamics
 from eark.control import ControlRule
@@ -56,11 +57,13 @@ def solve(power_initial: float, precursor_density_initial: np.ndarray, beta_vect
           precursor_constants: np.ndarray, total_beta: float, period: float, heat_coeff: float,
           mass_mod: float, heat_cap_mod: float, mass_flow: float, mass_fuel: float, heat_cap_fuel: float,
           temp_in: float, temp_mod_initial: float, temp_fuel_initial: float, drum_control_rule: ControlRule,
-          drum_angle_initial: float, t_max: float, t_start: float = 0, num_iters: int = 100) -> Solution:
+          t_max: float, t_start: float = 0, num_iters: int = 100) -> Solution:
 
     """Solving differential equations to calculate parameters of reactor at a certain state
 
     Args:
+        temp_fuel_initial:
+        temp_mod_initial:
         power_initial:
             float, initial reactor power                                [W]
         precursor_density_initial:
@@ -117,10 +120,19 @@ def solve(power_initial: float, precursor_density_initial: np.ndarray, beta_vect
     # Build the initial state
     rho_fuel_temp_initial = dynamics.temp_fuel_reactivity(beta=total_beta, temp_fuel=temp_fuel_initial)
     rho_mod_temp_initial = dynamics.temp_mod_reactivity(beta=total_beta, temp_mod=temp_mod_initial)
-    rho_con_drum_initial = dynamics.con_drum_reactivity(beta=total_beta, drum_angle=drum_angle_initial)
 
-    initial_state = State(power_initial, precursor_density_initial, temp_mod_initial, temp_fuel_initial, rho_fuel_temp_initial, rho_mod_temp_initial,
-                          drum_angle_initial, rho_con_drum_initial)
+    def converge_angle(drum_angle):
+        return total_beta * (dynamics.CON_DRUM_REACTIVITY_C1 * drum_angle ** 3 +
+                dynamics.CON_DRUM_REACTIVITY_C2 * drum_angle ** 2 +
+                dynamics.CON_DRUM_REACTIVITY_C3 * drum_angle +
+                dynamics.CON_DRUM_REACTIVITY_C4) + rho_fuel_temp_initial + rho_mod_temp_initial
+
+    drum_angle_initial = fsolve(converge_angle, 64)[0]
+    rho_con_drum_initial = dynamics.con_drum_reactivity(beta=total_beta, drum_angle=drum_angle_initial)
+    print(drum_angle_initial)
+
+    initial_state = State(power_initial, precursor_density_initial, temp_mod_initial, temp_fuel_initial, rho_fuel_temp_initial,
+                          rho_mod_temp_initial, drum_angle_initial, rho_con_drum_initial)
 
     # Compute time intervals for odeint integrator
     t = np.linspace(t_start, t_max, num_iters)
